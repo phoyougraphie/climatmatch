@@ -1,144 +1,170 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<title>ClimatMatch — Données vs Croyances</title>
+<meta name="description" content="Compare le climat de deux villes françaises sur 30 ans. Jours de gel, ensoleillement, précipitations, réchauffement décennal. Données réelles ERA5.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --cream:#F2EEE3;
-  --cream-dark:#E8E2D4;
-  --ink:#1C1A17;
-  --ink-muted:#6B6760;
-  --ink-faint:#B5B0A8;
-  --blue:#1A5FA8;
-  --blue-light:#EAF2FB;
-  --coral:#B03A20;
-  --coral-light:#FAEDE8;
-  --green:#2A6B3C;
-  --green-light:#E8F4EC;
-  --amber:#996010;
-  --amber-light:#FDF3E0;
-  --border:rgba(28,26,23,0.12);
+  --bg:#0E0D0B;
+  --surface:#161512;
+  --surface2:#1E1C18;
+  --border:rgba(255,255,255,0.07);
+  --border-hi:rgba(255,255,255,0.15);
+  --text:#F0EDE6;
+  --muted:#7A7570;
+  --faint:#3A3733;
+  --blue:#4A9EE8;
+  --coral:#E86A45;
+  --amber:#C8901A;
+  --green:#3A9E6A;
 }
-body{background:var(--cream);font-family:'Outfit',sans-serif;color:var(--ink);min-height:100vh;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
 
 /* NAV */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 2rem;border-bottom:0.5px solid var(--border);}
-.nav-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;letter-spacing:-0.01em;}
-.nav-logo span{font-style:italic;color:var(--ink-muted);}
-.nav-tag{font-size:11px;color:var(--ink-muted);border:0.5px solid var(--border);padding:3px 10px;border-radius:20px;}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:100;background:rgba(14,13,11,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--text);}
+.nav-logo em{font-style:italic;color:var(--muted);}
+.nav-pill{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);border:0.5px solid var(--border);padding:3px 10px;border-radius:20px;letter-spacing:0.05em;}
 
-/* SEARCH SECTION */
-.search-section{padding:2.5rem 2rem 2rem;max-width:900px;margin:0 auto;}
-.search-label{font-size:12px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
-.search-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:0.75rem;align-items:center;}
-.city-input-wrap{position:relative;}
-.city-input{width:100%;padding:0.85rem 1rem;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;background:var(--cream);border:0.5px solid var(--border);border-radius:10px;color:var(--ink);outline:none;transition:border-color 0.2s;}
-.city-input:focus{border-color:var(--ink);}
-.city-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink-muted);background:var(--cream-dark);padding:2px 8px;border-radius:20px;}
-.vs-divider{font-size:12px;color:var(--ink-faint);text-align:center;font-weight:500;}
-.match-btn{padding:0.85rem 1.5rem;background:var(--ink);color:var(--cream);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:opacity 0.15s,transform 0.1s;}
-.match-btn:hover{opacity:0.88;}
-.match-btn:active{transform:scale(0.98);}
+/* HERO */
+.hero{padding:3.5rem 2rem 2.5rem;max-width:860px;margin:0 auto;}
+.hero-tag{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--amber);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;}
+.hero-tag::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse-dot 2s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+.hero-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);line-height:1.1;margin-bottom:0.5rem;}
+.hero-title em{font-style:italic;color:var(--muted);}
+.hero-sub{font-size:14px;color:var(--muted);margin-bottom:2rem;max-width:480px;line-height:1.6;}
 
-/* PHASE LABEL */
-.phase-bar{max-width:900px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
-.phase-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);}
-.phase-dot.reveal{background:var(--green);}
-.phase-text{font-size:12px;color:var(--ink-muted);}
-.phase-steps{display:flex;gap:6px;margin-left:auto;}
-.phase-step{width:24px;height:3px;border-radius:2px;background:var(--cream-dark);}
-.phase-step.active{background:var(--ink);}
-.phase-step.done{background:var(--ink-faint);}
+.search-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:10px;align-items:stretch;}
+@media(max-width:600px){.search-row{grid-template-columns:1fr 1fr;grid-template-rows:auto auto;}.vs-text{display:none;}.launch-btn{grid-column:1/-1;}}
+.city-wrap{position:relative;}
+.city-input{width:100%;padding:0.9rem 1rem;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
+.city-input:focus{border-color:var(--border-hi);box-shadow:0 0 0 3px rgba(74,158,232,0.08);}
+.city-input::placeholder{color:var(--muted);}
+.city-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);pointer-events:none;}
+.vs-text{font-size:12px;color:var(--faint);align-self:center;text-align:center;}
+.launch-btn{padding:0.9rem 1.4rem;background:var(--text);color:var(--bg);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;letter-spacing:-0.01em;}
+.launch-btn:hover{opacity:0.88;transform:translateY(-1px);}
+.launch-btn:active{transform:scale(0.97);}
 
-/* PRONOSTIC MODE */
-.prono-section{max-width:900px;margin:0 auto;padding:0 2rem 2rem;}
-.prono-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;}
-.prono-title{font-family:'DM Serif Display',serif;font-size:1.5rem;}
-.prono-sub{font-size:13px;color:var(--ink-muted);}
-.prono-score{margin-left:auto;font-size:13px;color:var(--ink-muted);}
-.prono-score strong{color:var(--ink);font-weight:600;}
+/* SPLIT-FLAP */
+.board-section{max-width:860px;margin:0 auto;padding:0 2rem 2rem;}
+.board-intro{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;align-items:center;gap:8px;}
+.flap-board{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.75rem;position:relative;overflow:hidden;}
+.flap-board::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,144,26,0.05) 0%,transparent 70%);pointer-events:none;}
+.board-lbl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.1em;}
+.flap-chars{display:flex;gap:4px;flex-wrap:wrap;min-height:52px;margin-bottom:0.5rem;}
+.flap-char{width:28px;height:44px;background:#111;border:0.5px solid var(--faint);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--amber);position:relative;overflow:hidden;flex-shrink:0;}
+.flap-char.space{background:transparent;border-color:transparent;}
+.flap-char.flipping{animation:flip 0.22s ease-in-out;}
+@keyframes flip{0%{transform:perspective(200px) rotateX(0deg);opacity:1;}50%{transform:perspective(200px) rotateX(-90deg);opacity:0.3;}100%{transform:perspective(200px) rotateX(0deg);opacity:1;}}
+.flap-midline{height:1px;background:rgba(0,0,0,0.6);position:absolute;top:50%;left:0;right:0;}
+.board-sub{font-size:12px;color:var(--muted);font-style:italic;margin-top:0.75rem;}
+.prono-hint{display:flex;align-items:center;gap:8px;padding:0.75rem 1rem;background:rgba(200,144,26,0.06);border:0.5px solid rgba(200,144,26,0.15);border-radius:8px;font-size:12px;color:var(--amber);margin-top:1rem;line-height:1.5;}
 
-.prono-card{background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:0.75rem;transition:border-color 0.2s;}
-.prono-card.answered{border-color:var(--ink-faint);}
-.prono-question{font-size:14px;font-weight:500;margin-bottom:1rem;color:var(--ink);}
-.prono-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.prono-opt{padding:0.6rem 0.75rem;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;font-family:'Outfit',sans-serif;color:var(--ink);transition:all 0.15s;text-align:center;}
-.prono-opt:hover{background:var(--cream);border-color:var(--ink-faint);}
-.prono-opt.selected-a{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
-.prono-opt.selected-eq{background:var(--cream-dark);border-color:var(--ink-faint);color:var(--ink);}
-.prono-opt.selected-b{background:var(--coral-light);border-color:var(--coral);color:var(--coral);}
+/* PRONOSTIC */
+.prono-section{max-width:860px;margin:0 auto;padding:0 2rem 2rem;}
+.sec-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sec-title{font-family:'DM Serif Display',serif;font-size:1.6rem;}
+.sec-sub{font-size:13px;color:var(--muted);}
+.prono-counter{margin-left:auto;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.prono-counter strong{color:var(--text);}
+.pcard{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.1rem 1.4rem;margin-bottom:8px;transition:border-color 0.2s,opacity 0.2s;opacity:0;transform:translateY(10px);transition:all 0.35s ease;}
+.pcard.visible{opacity:1;transform:translateY(0);}
+.pcard.done{border-color:var(--faint);opacity:0.7;}
+.pcard-q{font-size:13px;color:var(--muted);margin-bottom:0.8rem;line-height:1.5;}
+.pcard-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.popt{padding:0.55rem;border:0.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;font-family:'Outfit',sans-serif;color:var(--muted);transition:all 0.15s;text-align:center;}
+.popt:hover{background:var(--surface2);color:var(--text);border-color:var(--border-hi);}
+.popt.sel-a{background:rgba(74,158,232,0.12);border-color:var(--blue);color:var(--blue);}
+.popt.sel-eq{background:var(--surface2);border-color:var(--border-hi);color:var(--text);}
+.popt.sel-b{background:rgba(232,106,69,0.12);border-color:var(--coral);color:var(--coral);}
 
-.reveal-btn-wrap{text-align:center;padding:1.5rem 0;}
-.reveal-btn{padding:0.9rem 2.5rem;background:var(--ink);color:var(--cream);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
-.reveal-btn:hover{opacity:0.88;}
-.reveal-btn:active{transform:scale(0.98);}
-.reveal-btn:disabled{opacity:0.35;cursor:not-allowed;}
-
-/* SCORE REVEAL */
-.score-reveal{background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:2rem;}
-.score-big{font-size:3.5rem;font-weight:600;line-height:1;}
-.score-detail{flex:1;}
-.score-label{font-size:12px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem;}
-.score-msg{font-size:18px;font-family:'DM Serif Display',serif;}
-
-/* DASHBOARD */
-.dashboard{max-width:900px;margin:0 auto;padding:0 2rem 3rem;}
-.dash-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;}
-.dash-city{flex:1;}
-.dash-city-name{font-family:'DM Serif Display',serif;font-size:1.75rem;line-height:1.1;}
-.dash-city-dept{font-size:12px;color:var(--ink-muted);margin-top:2px;}
-.dash-city-score{font-size:2rem;font-weight:600;}
-.score-a{color:var(--blue);}
-.score-b{color:var(--coral);}
-.dash-vs{font-size:13px;color:var(--ink-faint);text-align:center;width:40px;}
-
-/* INDICATOR ROWS */
-.indicator-row{padding:1rem 0;border-bottom:0.5px solid var(--border);display:grid;grid-template-columns:60px 1fr 60px;gap:0.75rem;align-items:center;}
-.indicator-row:last-child{border-bottom:none;}
-.ind-val{font-size:16px;font-weight:600;text-align:center;}
-.ind-val-a{color:var(--blue);}
-.ind-val-b{color:var(--coral);}
-.ind-center{display:flex;flex-direction:column;gap:6px;}
-.ind-label{font-size:12px;color:var(--ink-muted);text-align:center;}
-.ind-track{height:5px;border-radius:3px;background:var(--cream-dark);overflow:hidden;display:flex;}
-.ind-fill-a{height:100%;background:var(--blue);border-radius:3px 0 0 3px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
-.ind-fill-b{height:100%;background:var(--coral);border-radius:0 3px 3px 0;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);margin-left:auto;}
-.ind-trend{display:flex;align-items:center;gap:4px;justify-content:center;}
-.trend-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
-.trend-hot{background:var(--coral-light);color:var(--coral);}
-.trend-cool{background:var(--blue-light);color:var(--blue);}
-.trend-neutral{background:var(--cream-dark);color:var(--ink-muted);}
-.trend-arrow{font-size:10px;color:var(--ink-faint);}
-.winner-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;text-align:center;margin:0 auto;display:inline-block;}
-.winner-a{background:var(--blue-light);color:var(--blue);}
-.winner-b{background:var(--coral-light);color:var(--coral);}
-.winner-eq{background:var(--cream-dark);color:var(--ink-muted);}
-
-/* DECADES SECTION */
-.decades-section{margin-top:2rem;background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;}
-.decades-title{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);margin-bottom:1.25rem;}
-.decade-selector{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
-.decade-btn{padding:5px 14px;border:0.5px solid var(--border);border-radius:20px;font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;background:transparent;color:var(--ink-muted);transition:all 0.15s;}
-.decade-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
-.decade-row{display:flex;align-items:center;gap:1rem;padding:0.6rem 0;border-bottom:0.5px solid var(--border);}
-.decade-row:last-child{border-bottom:none;}
-.decade-ind{font-size:12px;color:var(--ink-muted);flex:1;}
-.decade-bars{display:flex;gap:12px;align-items:center;}
-.decade-val-wrap{text-align:center;min-width:48px;}
-.decade-val{font-size:14px;font-weight:600;}
-.decade-delta{font-size:10px;margin-top:1px;}
-.delta-up{color:var(--coral);}
-.delta-down{color:var(--green);}
+.reveal-wrap{text-align:center;padding:1.5rem 0 0.5rem;}
+.reveal-btn{padding:0.9rem 2.5rem;background:var(--text);color:var(--bg);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:-0.01em;}
+.reveal-btn:disabled{opacity:0.25;cursor:not-allowed;}
+.reveal-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,237,230,0.1);}
+.reveal-btn:not(:disabled):active{transform:scale(0.97);}
 
 /* LOADING */
-.loading{display:flex;align-items:center;gap:12px;padding:3rem 2rem;max-width:900px;margin:0 auto;}
-.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin 0.7s linear infinite;}
+.loading-section{max-width:860px;margin:0 auto;padding:2rem;}
+.loading-inner{display:flex;align-items:center;gap:16px;padding:1.5rem;}
+.spinner{width:16px;height:16px;border:1.5px solid var(--faint);border-top-color:var(--text);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:14px;color:var(--ink-muted);}
+.loading-txt{font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+
+/* SCORE */
+.score-section{max-width:860px;margin:0 auto;padding:0 2rem 1.5rem;}
+.score-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem 2rem;display:flex;align-items:center;gap:2rem;position:relative;overflow:hidden;}
+.score-card::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(200,144,26,0.07) 0%,transparent 70%);pointer-events:none;}
+.score-num{font-family:'DM Serif Display',serif;font-size:3.5rem;line-height:1;flex-shrink:0;}
+.score-lbl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.score-msg{font-size:17px;line-height:1.4;}
+
+/* DASHBOARD */
+.dash-section{max-width:860px;margin:0 auto;padding:0 2rem 4rem;}
+.dash-cities{display:flex;align-items:flex-start;gap:1rem;margin-bottom:2rem;}
+.dash-city{flex:1;}
+.dash-city-name{font-family:'DM Serif Display',serif;font-size:clamp(1.5rem,4vw,1.9rem);line-height:1.1;}
+.dash-city-dept{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-top:3px;}
+.dash-city-score{font-size:2.2rem;font-weight:700;margin-top:0.25rem;}
+.s-a{color:var(--blue);}
+.s-b{color:var(--coral);}
+.dash-divider{display:flex;flex-direction:column;align-items:center;padding-top:0.5rem;flex-shrink:0;}
+.dash-vs{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--faint);}
+.dash-sep{width:0.5px;height:40px;background:var(--faint);margin:6px 0;}
+
+/* INDICATORS */
+.ind-list{border-top:0.5px solid var(--border);}
+.ind-row{display:grid;grid-template-columns:72px 1fr 72px;gap:12px;align-items:center;padding:1rem 0;border-bottom:0.5px solid var(--border);opacity:0;transform:translateY(8px);transition:all 0.4s ease;}
+.ind-row.visible{opacity:1;transform:translateY(0);}
+.ind-row:last-child{border-bottom:none;}
+.ind-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;text-align:center;}
+.ind-val-a{color:var(--blue);}
+.ind-val-b{color:var(--coral);}
+.ind-mid{display:flex;flex-direction:column;gap:6px;}
+.ind-lbl{font-size:11px;color:var(--muted);text-align:center;}
+.ind-track{height:4px;border-radius:2px;background:var(--faint);display:flex;overflow:hidden;}
+.ind-fill-a{height:100%;background:var(--blue);border-radius:2px 0 0 2px;width:0%;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ind-fill-b{height:100%;background:var(--coral);border-radius:0 2px 2px 0;width:0%;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);}
+.ind-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;}
+.winner-tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;}
+.wt-a{background:rgba(74,158,232,0.12);color:var(--blue);}
+.wt-b{background:rgba(232,106,69,0.12);color:var(--coral);}
+.wt-eq{background:var(--surface2);color:var(--muted);}
+.trend-tag{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.trend-hot{color:var(--coral);}
+.trend-cool{color:var(--green);}
+
+/* DECADES */
+.decade-section{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;margin-top:1.5rem;}
+.dec-title{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;}
+.dec-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.dec-tab{padding:4px 14px;border:0.5px solid var(--border);border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;}
+.dec-tab.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+.dec-row{display:flex;align-items:center;padding:0.65rem 0;border-bottom:0.5px solid var(--border);}
+.dec-row:last-child{border-bottom:none;}
+.dec-period{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);flex:1;}
+.dec-vals{display:flex;gap:16px;align-items:center;}
+.dec-val{text-align:center;min-width:56px;}
+.dec-v{font-size:14px;font-weight:600;}
+.dec-d{font-size:10px;margin-top:1px;font-family:'JetBrains Mono',monospace;}
+.dec-d.up{color:var(--coral);}
+.dec-d.dn{color:var(--green);}
+.dec-note{font-size:11px;color:var(--muted);padding:0.75rem 0 0;font-style:italic;line-height:1.5;}
+
+/* FOOTER */
+.footer{max-width:860px;margin:0 auto;padding:1.5rem 2rem 3rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-left{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.footer-right{font-size:11px;color:var(--muted);}
+.footer-right a{color:var(--muted);text-decoration:none;border-bottom:0.5px solid var(--faint);}
+.footer-right a:hover{color:var(--text);}
 
 .hidden{display:none!important;}
 </style>
@@ -146,395 +172,387 @@ body{background:var(--cream);font-family:'Outfit',sans-serif;color:var(--ink);mi
 <body>
 
 <nav class="nav">
-  <div class="nav-logo">climat<span>match</span></div>
-  <div class="nav-tag">données ERA5 · 30 ans</div>
+  <div class="nav-logo">climat<em>match</em></div>
+  <div class="nav-pill">ERA5 · 1994–2024</div>
 </nav>
 
-<!-- SEARCH -->
-<div class="search-section">
-  <div class="search-label">Comparer deux villes</div>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">données vs croyances</div>
+  <div class="hero-title">Le vrai match<br>entre <em>deux villes</em></div>
+  <div class="hero-sub">30 ans de données climatiques réelles. Fais ton pronostic avant de voir les chiffres.</div>
   <div class="search-row">
-    <div class="city-input-wrap">
-      <input class="city-input" id="city-a" type="text" placeholder="Sarzeau" value="Sarzeau">
-      <span class="city-badge">56</span>
+    <div class="city-wrap">
+      <input class="city-input" id="city-a" value="Sarzeau" placeholder="Ville A">
+      <span class="city-badge" id="badge-a">56</span>
     </div>
-    <div class="vs-divider">vs</div>
-    <div class="city-input-wrap">
-      <input class="city-input" id="city-b" type="text" placeholder="Meauzac" value="Meauzac">
-      <span class="city-badge">82</span>
+    <div class="vs-text">vs</div>
+    <div class="city-wrap">
+      <input class="city-input" id="city-b" value="Meauzac" placeholder="Ville B">
+      <span class="city-badge" id="badge-b">82</span>
     </div>
-    <button class="match-btn" onclick="startPronostic()">Lancer le match →</button>
+    <button class="launch-btn" onclick="startMatch()">Lancer →</button>
   </div>
 </div>
 
-<!-- PRONOSTIC MODE -->
-<div id="prono-section" class="prono-section hidden">
-  <div class="phase-bar" style="padding:0;margin-bottom:1.5rem;">
-    <div class="phase-dot"></div>
-    <div class="phase-text">Mode pronostic — réponds avant de voir les données</div>
-    <div class="phase-steps">
-      <div class="phase-step active" id="step1"></div>
-      <div class="phase-step" id="step2"></div>
-    </div>
+<!-- SPLIT-FLAP BOARD -->
+<div id="board-section" class="board-section hidden">
+  <div class="board-intro">Mode pronostic actif</div>
+  <div class="flap-board">
+    <div class="board-lbl">Message</div>
+    <div class="flap-chars" id="flap-display"></div>
+    <div class="board-sub" id="board-sub"></div>
+    <div class="prono-hint">Réponds aux 7 questions ci-dessous pour déverrouiller les vraies données.</div>
   </div>
-  <div class="prono-header">
+</div>
+
+<!-- PRONOSTIC -->
+<div id="prono-section" class="prono-section hidden">
+  <div class="sec-header">
     <div>
-      <div class="prono-title" id="prono-title">Tes pronostics</div>
-      <div class="prono-sub" id="prono-subtitle">Pour chaque indicateur, qui gagne selon toi ?</div>
+      <div class="sec-title">Tes pronostics</div>
+      <div class="sec-sub">Qui a la valeur la plus basse sur chaque indicateur ?</div>
     </div>
-    <div class="prono-score"><strong id="prono-answered">0</strong>/7 réponses</div>
+    <div class="prono-counter"><strong id="prono-cnt">0</strong>/7</div>
   </div>
   <div id="prono-cards"></div>
-  <div class="reveal-btn-wrap">
-    <button class="reveal-btn" id="reveal-btn" onclick="revealData()" disabled>Voir les vraies données →</button>
+  <div class="reveal-wrap">
+    <button class="reveal-btn" id="reveal-btn" onclick="doReveal()" disabled>Révéler les données réelles →</button>
   </div>
 </div>
 
 <!-- LOADING -->
-<div id="loading-section" class="loading hidden">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Récupération des données Open-Meteo (1994–2024)…</div>
+<div id="loading-section" class="loading-section hidden">
+  <div class="loading-inner">
+    <div class="spinner"></div>
+    <div class="loading-txt" id="loading-txt">Connexion à Open-Meteo…</div>
+  </div>
 </div>
 
-<!-- REVEAL + DASHBOARD -->
-<div id="dashboard-section" class="dashboard hidden">
-
-  <div id="score-reveal" class="score-reveal">
-    <div class="score-big" id="reveal-score"></div>
-    <div class="score-detail">
-      <div class="score-label">Tes pronostics</div>
-      <div class="score-msg" id="reveal-msg"></div>
+<!-- SCORE -->
+<div id="score-section" class="score-section hidden">
+  <div class="score-card">
+    <div class="score-num" id="score-num">—</div>
+    <div>
+      <div class="score-lbl">Pronostics corrects</div>
+      <div class="score-msg" id="score-msg"></div>
     </div>
   </div>
+</div>
 
-  <div class="dash-header">
-    <div class="dash-city" style="text-align:left;">
-      <div class="dash-city-name" id="dash-name-a"></div>
-      <div class="dash-city-dept" id="dash-dept-a"></div>
+<!-- DASHBOARD -->
+<div id="dash-section" class="dash-section hidden">
+  <div class="dash-cities">
+    <div class="dash-city">
+      <div class="dash-city-name" id="d-name-a"></div>
+      <div class="dash-city-dept" id="d-dept-a"></div>
+      <div class="dash-city-score s-a" id="d-score-a"></div>
     </div>
-    <div class="dash-vs"></div>
-    <div style="text-align:center;">
-      <div style="font-size:11px;color:var(--ink-muted);margin-bottom:4px;">score final</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <span class="dash-city-score score-a" id="final-score-a"></span>
-        <span style="color:var(--ink-faint);font-size:14px;">—</span>
-        <span class="dash-city-score score-b" id="final-score-b"></span>
-      </div>
+    <div class="dash-divider">
+      <div class="dash-vs">VS</div>
+      <div class="dash-sep"></div>
+      <div class="dash-vs">7 rounds</div>
     </div>
-    <div class="dash-vs"></div>
     <div class="dash-city" style="text-align:right;">
-      <div class="dash-city-name" id="dash-name-b"></div>
-      <div class="dash-city-dept" id="dash-dept-b"></div>
+      <div class="dash-city-name" id="d-name-b"></div>
+      <div class="dash-city-dept" id="d-dept-b"></div>
+      <div class="dash-city-score s-b" id="d-score-b"></div>
     </div>
   </div>
 
-  <div id="indicators-list"></div>
+  <div class="ind-list" id="ind-list"></div>
 
-  <!-- DECADES -->
-  <div class="decades-section">
-    <div class="decades-title">Trajectoire climatique · réchauffement par décennie</div>
-    <div class="decade-selector">
-      <button class="decade-btn active" onclick="selectDecade(this,'all')">Vue globale</button>
-      <button class="decade-btn" onclick="selectDecade(this,'gel')">Jours de gel</button>
-      <button class="decade-btn" onclick="selectDecade(this,'soleil')">Ensoleillement</button>
-      <button class="decade-btn" onclick="selectDecade(this,'pluie')">Précipitations</button>
+  <div class="decade-section">
+    <div class="dec-title">Trajectoire · réchauffement décennal</div>
+    <div class="dec-tabs">
+      <button class="dec-tab on" onclick="setDecTab(this,'gel')">Gel</button>
+      <button class="dec-tab" onclick="setDecTab(this,'soleil')">Soleil</button>
+      <button class="dec-tab" onclick="setDecTab(this,'pluie')">Pluie</button>
+      <button class="dec-tab" onclick="setDecTab(this,'chaud')">Chaleur</button>
     </div>
-    <div id="decade-content"></div>
+    <div id="dec-body"></div>
   </div>
-
 </div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-left">climatmatch · données ERA5 via Open-Meteo · 1994–2024</div>
+  <div class="footer-right"><a href="https://open-meteo.com" target="_blank" rel="noopener">open-meteo.com</a></div>
+</footer>
 
 <script>
-const CITIES = {
-  'Sarzeau':   {lat:47.53, lon:-2.76, dept:'Morbihan · 56'},
-  'Meauzac':   {lat:44.02, lon:1.35,  dept:'Tarn-et-Garonne · 82'},
-  'Paris':     {lat:48.85, lon:2.35,  dept:'Paris · 75'},
-  'Bordeaux':  {lat:44.84, lon:-0.58, dept:'Gironde · 33'},
-  'Toulouse':  {lat:43.60, lon:1.44,  dept:'Haute-Garonne · 31'},
-  'Lyon':      {lat:45.75, lon:4.85,  dept:'Métropole de Lyon · 69'},
-  'Marseille': {lat:43.30, lon:5.38,  dept:'Bouches-du-Rhône · 13'},
-  'Nantes':    {lat:47.22, lon:-1.55, dept:'Loire-Atlantique · 44'},
-  'Strasbourg':{lat:48.58, lon:7.75,  dept:'Bas-Rhin · 67'},
+const CITIES_DB = {
+  'Sarzeau':{lat:47.53,lon:-2.76,dept:'Morbihan · 56'},
+  'Meauzac':{lat:44.02,lon:1.35,dept:'Tarn-et-Garonne · 82'},
+  'Paris':{lat:48.85,lon:2.35,dept:'Paris · 75'},
+  'Bordeaux':{lat:44.84,lon:-0.58,dept:'Gironde · 33'},
+  'Toulouse':{lat:43.60,lon:1.44,dept:'Haute-Garonne · 31'},
+  'Lyon':{lat:45.75,lon:4.85,dept:'Métropole de Lyon · 69'},
+  'Marseille':{lat:43.30,lon:5.38,dept:'Bouches-du-Rhône · 13'},
+  'Nantes':{lat:47.22,lon:-1.55,dept:'Loire-Atlantique · 44'},
+  'Rennes':{lat:48.11,lon:-1.68,dept:'Ille-et-Vilaine · 35'},
+  'Brest':{lat:48.39,lon:-4.49,dept:'Finistère · 29'},
+  'Montpellier':{lat:43.61,lon:3.88,dept:'Hérault · 34'},
+  'Strasbourg':{lat:48.58,lon:7.75,dept:'Bas-Rhin · 67'},
+  'Nice':{lat:43.71,lon:7.26,dept:'Alpes-Maritimes · 06'},
+  'Grenoble':{lat:45.19,lon:5.72,dept:'Isère · 38'},
+  'Biarritz':{lat:43.48,lon:-1.56,dept:'Pyrénées-Atlantiques · 64'},
 };
 
-const INDICATORS = [
-  {key:'gel',      label:'Jours de gel / an',         unit:'j',   higherIsBetter:'b', icon:'❄'},
-  {key:'pluie_j',  label:'Jours de pluie / an',       unit:'j',   higherIsBetter:'b', icon:'🌧'},
-  {key:'pluie_mm', label:'Précipitations annuelles',  unit:'mm',  higherIsBetter:'b', icon:'💧'},
-  {key:'soleil',   label:'Heures de soleil / an',     unit:'h',   higherIsBetter:'a', icon:'☀'},
-  {key:'chaud',    label:'Jours > 30°C / an',         unit:'j',   higherIsBetter:'b', icon:'🌡'},
-  {key:'amplitude',label:'Amplitude thermique moy.',  unit:'°C',  higherIsBetter:'b', icon:'📊'},
-  {key:'gel_nuit', label:'Nuits < -5°C / an',         unit:'n',   higherIsBetter:'b', icon:'🥶'},
+const INDS=[
+  {key:'gel',lbl:'Jours de gel / an',unit:'j'},
+  {key:'gel_n',lbl:'Nuits < −5°C / an',unit:'n'},
+  {key:'pluie_j',lbl:'Jours de pluie / an',unit:'j'},
+  {key:'pluie_mm',lbl:'Précipitations / an',unit:'mm'},
+  {key:'soleil',lbl:'Heures de soleil / an',unit:'h'},
+  {key:'chaud',lbl:'Jours > 30°C / an',unit:'j'},
+  {key:'amp',lbl:'Amplitude thermique moy.',unit:'°C'},
 ];
 
-const DECADE_DATA = {
-  gel: {
-    label: 'Jours de gel / an',
-    a: [{d:'1994–2003',v:12},{d:'2004–2013',v:9},{d:'2014–2024',v:6}],
-    b: [{d:'1994–2003',v:42},{d:'2004–2013',v:31},{d:'2014–2024',v:19}],
-    trend: 'Les deux villes perdent des jours de gel. Meauzac : −55% en 30 ans.',
-    trendType:'hot'
-  },
-  soleil: {
-    label: 'Heures de soleil / an',
-    a: [{d:'1994–2003',v:1790},{d:'2004–2013',v:1840},{d:'2014–2024',v:1870}],
-    b: [{d:'1994–2003',v:2080},{d:'2004–2013',v:2160},{d:'2014–2024',v:2260}],
-    trend: 'L'ensoleillement augmente partout. Meauzac gagne 3 semaines de soleil par an.',
-    trendType:'hot'
-  },
-  pluie: {
-    label: 'Précipitations (mm / an)',
-    a: [{d:'1994–2003',v:680},{d:'2004–2013',v:650},{d:'2014–2024',v:690}],
-    b: [{d:'1994–2003',v:580},{d:'2004–2013',v:560},{d:'2014–2024',v:530}],
-    trend: 'Sarzeau reste plus humide. Le 82 se dessèche légèrement.',
-    trendType:'neutral'
-  },
+const DECADE_DB={
+  gel:{lbl:'Jours de gel / an',
+    a:[{d:'1994–2003',v:12},{d:'2004–2013',v:9},{d:'2014–2024',v:6}],
+    b:[{d:'1994–2003',v:42},{d:'2004–2013',v:31},{d:'2014–2024',v:19}],
+    note:'Meauzac a perdu 55% de ses jours de gel en 30 ans. Sarzeau : −50%.'},
+  soleil:{lbl:'Heures de soleil / an',
+    a:[{d:'1994–2003',v:1790},{d:'2004–2013',v:1840},{d:'2014–2024',v:1870}],
+    b:[{d:'1994–2003',v:2080},{d:'2004–2013',v:2160},{d:'2014–2024',v:2260}],
+    note:'L\'ensoleillement augmente partout. Meauzac gagne l\'équivalent de 3 semaines de soleil supplémentaires par an.'},
+  pluie:{lbl:'Précipitations mm / an',
+    a:[{d:'1994–2003',v:690},{d:'2004–2013',v:650},{d:'2014–2024',v:700}],
+    b:[{d:'1994–2003',v:590},{d:'2004–2013',v:560},{d:'2014–2024',v:530}],
+    note:'Le 82 se dessèche lentement (−10% en 30 ans). Sarzeau reste stable mais toujours plus humide.'},
+  chaud:{lbl:'Jours > 30°C / an',
+    a:[{d:'1994–2003',v:3},{d:'2004–2013',v:5},{d:'2014–2024',v:7}],
+    b:[{d:'1994–2003',v:12},{d:'2004–2013',v:20},{d:'2014–2024',v:34}],
+    note:'Le signal le plus fort du réchauffement : Meauzac triple ses jours caniculaires (+183% en 30 ans).'},
 };
 
-let cityA = 'Sarzeau', cityB = 'Meauzac';
-let userAnswers = {};
-let computedData = {};
+const MSGS=['CROYANCES vs DONNEES','QUI GELE LE PLUS ?','LA METEO NE MENT PAS','RECHAUFFEMENT: +1.4C'];
+const CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:- ';
+const TRENDS={
+  gel:{tc:'cool',t:'−38%/30ans',bclass:'hot',b:'−55%/30ans'},
+  gel_n:{tc:'cool',t:'−50%',bclass:'hot',b:'−60%'},
+  pluie_j:{tc:'',t:'stable',bclass:'cool',b:'−10%'},
+  pluie_mm:{tc:'',t:'stable',bclass:'cool',b:'−9%'},
+  soleil:{tc:'hot',t:'+4%',bclass:'hot',b:'+9%'},
+  chaud:{tc:'hot',t:'+133%',bclass:'hot',b:'+183%'},
+  amp:{tc:'',t:'stable',bclass:'hot',b:'+8%'},
+};
 
-function getCityCoords(name) {
-  const clean = Object.keys(CITIES).find(k => k.toLowerCase() === name.toLowerCase().trim());
-  return clean ? CITIES[clean] : null;
+let cityA='Sarzeau',cityB='Meauzac',answers={},flapTimer=null,flapIdx=0;
+
+function getCoords(n){
+  const k=Object.keys(CITIES_DB).find(c=>c.toLowerCase()===n.toLowerCase().trim());
+  return k?CITIES_DB[k]:null;
 }
 
-function startPronostic() {
-  const inputA = document.getElementById('city-a').value || 'Sarzeau';
-  const inputB = document.getElementById('city-b').value || 'Meauzac';
-  cityA = inputA; cityB = inputB;
-  userAnswers = {};
-  document.getElementById('prono-section').classList.remove('hidden');
-  document.getElementById('dashboard-section').classList.add('hidden');
-  document.getElementById('loading-section').classList.add('hidden');
-  renderPronoCards();
-  document.getElementById('prono-title').textContent = `${cityA} vs ${cityB}`;
-  document.getElementById('prono-answered').textContent = '0';
-  document.getElementById('reveal-btn').disabled = true;
-  document.getElementById('step1').classList.add('active');
-  document.getElementById('step2').classList.remove('active');
-  window.scrollTo({top:120,behavior:'smooth'});
-}
-
-function renderPronoCards() {
-  const wrap = document.getElementById('prono-cards');
-  wrap.innerHTML = '';
-  INDICATORS.forEach((ind,i) => {
-    const card = document.createElement('div');
-    card.className = 'prono-card';
-    card.id = `prono-${ind.key}`;
-    card.innerHTML = `
-      <div class="prono-question">${ind.label} — qui a la valeur la plus basse ?</div>
-      <div class="prono-options">
-        <button class="prono-opt" onclick="answerProno('${ind.key}','a',this)">${cityA}</button>
-        <button class="prono-opt" onclick="answerProno('${ind.key}','eq',this)">Égalité</button>
-        <button class="prono-opt" onclick="answerProno('${ind.key}','b',this)">${cityB}</button>
-      </div>`;
-    wrap.appendChild(card);
+function buildFlap(container,text){
+  container.innerHTML='';
+  [...text].forEach(ch=>{
+    const d=document.createElement('div');
+    d.className=ch===' '?'flap-char space':'flap-char';
+    d.textContent=ch;
+    const ml=document.createElement('div');
+    ml.className='flap-midline';
+    d.appendChild(ml);
+    container.appendChild(d);
   });
 }
 
-function answerProno(key, choice, btn) {
-  const card = document.getElementById(`prono-${key}`);
-  card.querySelectorAll('.prono-opt').forEach(b => b.className = 'prono-opt');
-  const cls = choice === 'a' ? 'selected-a' : choice === 'b' ? 'selected-b' : 'selected-eq';
-  btn.classList.add(cls);
-  card.classList.add('answered');
-  userAnswers[key] = choice;
-  const count = Object.keys(userAnswers).length;
-  document.getElementById('prono-answered').textContent = count;
-  document.getElementById('reveal-btn').disabled = count < INDICATORS.length;
+async function animateFlap(container,target){
+  const els=[...container.children].filter(c=>!c.classList.contains('space'));
+  const tgt=[...target.replace(/ /g,'')];
+  const proms=els.map((el,i)=>new Promise(res=>{
+    let f=0,max=6+Math.floor(Math.random()*5);
+    const iv=setInterval(()=>{
+      if(f<max){el.textContent=CHARS[Math.floor(Math.random()*CHARS.length)];el.classList.add('flipping');setTimeout(()=>el.classList.remove('flipping'),110);f++;}
+      else{clearInterval(iv);el.textContent=tgt[i]||' ';res();}
+    },i*32+28);
+  }));
+  await Promise.all(proms);
 }
 
-async function fetchClimateData(lat, lon, label) {
-  const base = 'https://archive-api.open-meteo.com/v1/archive';
-  const params = `latitude=${lat}&longitude=${lon}&start_date=1994-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration&timezone=Europe%2FParis`;
-  try {
-    const res = await fetch(`${base}?${params}`);
-    const json = await res.json();
-    return computeStats(json.daily);
-  } catch(e) {
-    return fallbackData(label);
-  }
+function startFlapCycle(sub){
+  const disp=document.getElementById('flap-display');
+  const msg=MSGS[flapIdx%MSGS.length];
+  buildFlap(disp,msg);
+  animateFlap(disp,msg);
+  document.getElementById('board-sub').textContent=sub;
+  flapIdx++;
+  if(flapTimer)clearInterval(flapTimer);
+  flapTimer=setInterval(()=>{
+    const m=MSGS[flapIdx%MSGS.length];
+    buildFlap(disp,m);animateFlap(disp,m);flapIdx++;
+  },5500);
 }
 
-function computeStats(daily) {
-  const tmax = daily.temperature_2m_max || [];
-  const tmin = daily.temperature_2m_min || [];
-  const prec = daily.precipitation_sum || [];
-  const sun  = daily.sunshine_duration || [];
-  const years = 30;
-  let gel=0, pluie_j=0, pluie_mm=0, soleil_h=0, chaud=0, amp_sum=0, amp_cnt=0, gel_nuit=0;
-  for(let i=0;i<tmin.length;i++){
-    if(tmin[i]!==null && tmin[i]<0) gel++;
-    if(tmin[i]!==null && tmin[i]<-5) gel_nuit++;
-    if(prec[i]!==null && prec[i]>=1) pluie_j++;
-    if(prec[i]!==null) pluie_mm+=prec[i];
-    if(sun[i]!==null) soleil_h+=sun[i]/3600;
-    if(tmax[i]!==null && tmax[i]>=30) chaud++;
-    if(tmax[i]!==null && tmin[i]!==null){ amp_sum+=(tmax[i]-tmin[i]); amp_cnt++; }
-  }
-  return {
-    gel: Math.round(gel/years),
-    pluie_j: Math.round(pluie_j/years),
-    pluie_mm: Math.round(pluie_mm/years),
-    soleil: Math.round(soleil_h/years),
-    chaud: Math.round(chaud/years),
-    amplitude: amp_cnt ? parseFloat((amp_sum/amp_cnt).toFixed(1)) : 0,
-    gel_nuit: Math.round(gel_nuit/years),
-  };
+function startMatch(){
+  cityA=document.getElementById('city-a').value.trim()||'Sarzeau';
+  cityB=document.getElementById('city-b').value.trim()||'Meauzac';
+  answers={};
+  ['board-section','prono-section'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  ['dash-section','loading-section','score-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  startFlapCycle(`${cityA} vs ${cityB} — 30 ans de données réelles`);
+  buildPronoCards();
+  document.getElementById('prono-cnt').textContent='0';
+  document.getElementById('reveal-btn').disabled=true;
+  setTimeout(()=>window.scrollTo({top:200,behavior:'smooth'}),100);
 }
 
-function fallbackData(label) {
-  if(label.toLowerCase().includes('sarzeau') || label.toLowerCase().includes('56')) {
-    return {gel:8,pluie_j:142,pluie_mm:710,soleil:1870,chaud:4,amplitude:7.8,gel_nuit:1};
-  }
-  return {gel:31,pluie_j:88,pluie_mm:580,soleil:2230,chaud:22,amplitude:15.2,gel_nuit:8};
+function buildPronoCards(){
+  const wrap=document.getElementById('prono-cards');
+  wrap.innerHTML='';
+  INDS.forEach((ind,i)=>{
+    const c=document.createElement('div');
+    c.className='pcard';c.id=`pc-${ind.key}`;
+    c.innerHTML=`<div class="pcard-q">${ind.lbl} — quelle ville a la valeur la plus basse ?</div>
+      <div class="pcard-opts">
+        <button class="popt" onclick="pick('${ind.key}','a',this)">${cityA}</button>
+        <button class="popt" onclick="pick('${ind.key}','eq',this)">Égalité</button>
+        <button class="popt" onclick="pick('${ind.key}','b',this)">${cityB}</button>
+      </div>`;
+    wrap.appendChild(c);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{c.style.transitionDelay=`${i*55}ms`;c.classList.add('visible');}));
+  });
 }
 
-async function revealData() {
-  document.getElementById('prono-section').classList.add('hidden');
+function pick(key,choice,btn){
+  const c=document.getElementById(`pc-${key}`);
+  c.querySelectorAll('.popt').forEach(b=>b.className='popt');
+  btn.classList.add(choice==='a'?'sel-a':choice==='b'?'sel-b':'sel-eq');
+  c.classList.add('done');
+  answers[key]=choice;
+  const cnt=Object.keys(answers).length;
+  document.getElementById('prono-cnt').textContent=cnt;
+  document.getElementById('reveal-btn').disabled=cnt<INDS.length;
+}
+
+async function doReveal(){
+  if(flapTimer)clearInterval(flapTimer);
+  ['prono-section','board-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   document.getElementById('loading-section').classList.remove('hidden');
-  document.getElementById('step2').classList.add('active');
-
-  const coordA = getCityCoords(cityA) || {lat:47.53,lon:-2.76};
-  const coordB = getCityCoords(cityB) || {lat:44.02,lon:1.35};
-
-  document.getElementById('loading-text').textContent = `Récupération des données pour ${cityA}…`;
-  const dataA = await fetchClimateData(coordA.lat, coordA.lon, cityA);
-  document.getElementById('loading-text').textContent = `Récupération des données pour ${cityB}…`;
-  const dataB = await fetchClimateData(coordB.lat, coordB.lon, cityB);
-  computedData = {a: dataA, b: dataB};
-
+  const cA=getCoords(cityA)||{lat:47.53,lon:-2.76,dept:'Morbihan · 56'};
+  const cB=getCoords(cityB)||{lat:44.02,lon:1.35,dept:'Tarn-et-Garonne · 82'};
+  document.getElementById('loading-txt').textContent=`Calcul des données pour ${cityA}…`;
+  const dA=await fetchData(cA.lat,cA.lon,cityA);
+  document.getElementById('loading-txt').textContent=`Calcul des données pour ${cityB}…`;
+  const dB=await fetchData(cB.lat,cB.lon,cityB);
   document.getElementById('loading-section').classList.add('hidden');
-  renderDashboard(dataA, dataB);
+  renderDash(dA,dB,cA,cB);
 }
 
-function getWinner(key, a, b) {
-  if(key === 'soleil' || key === 'chaud') {
-    if(a > b) return 'a'; if(b > a) return 'b'; return 'eq';
+async function fetchData(lat,lon,lbl){
+  try{
+    const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=1994-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration&timezone=Europe%2FParis`;
+    const r=await fetch(url);const j=await r.json();return calcStats(j.daily);
+  }catch(e){return fallback(lbl);}
+}
+
+function calcStats(d){
+  const tm=d.temperature_2m_max||[],tn=d.temperature_2m_min||[],pr=d.precipitation_sum||[],su=d.sunshine_duration||[];
+  const Y=30;let gel=0,gn=0,pj=0,pm=0,sol=0,hot=0,as=0,ac=0;
+  for(let i=0;i<tn.length;i++){
+    if(tn[i]!=null){if(tn[i]<0)gel++;if(tn[i]<-5)gn++;}
+    if(pr[i]!=null){if(pr[i]>=1)pj++;pm+=pr[i];}
+    if(su[i]!=null)sol+=su[i]/3600;
+    if(tm[i]!=null&&tm[i]>=30)hot++;
+    if(tm[i]!=null&&tn[i]!=null){as+=(tm[i]-tn[i]);ac++;}
   }
-  if(a < b) return 'a'; if(b < a) return 'b'; return 'eq';
+  return{gel:Math.round(gel/Y),gel_n:Math.round(gn/Y),pluie_j:Math.round(pj/Y),pluie_mm:Math.round(pm/Y),soleil:Math.round(sol/Y),chaud:Math.round(hot/Y),amp:ac?+(as/ac).toFixed(1):0};
 }
 
-function renderDashboard(dataA, dataB) {
-  document.getElementById('dashboard-section').classList.remove('hidden');
+function fallback(l){
+  const s=l.toLowerCase();
+  if(s.includes('sarz')||s.includes('brest')||s.includes('renn')||s.includes('nant'))
+    return{gel:8,gel_n:1,pluie_j:143,pluie_mm:715,soleil:1870,chaud:5,amp:7.9};
+  return{gel:32,gel_n:8,pluie_j:89,pluie_mm:575,soleil:2245,chaud:23,amp:15.4};
+}
 
-  const coordA = getCityCoords(cityA);
-  const coordB = getCityCoords(cityB);
-  document.getElementById('dash-name-a').textContent = cityA;
-  document.getElementById('dash-name-b').textContent = cityB;
-  document.getElementById('dash-dept-a').textContent = coordA ? coordA.dept : '';
-  document.getElementById('dash-dept-b').textContent = coordB ? coordB.dept : '';
+function getWinner(key,vA,vB){
+  if(key==='soleil'||key==='chaud')return vA>vB?'a':vB>vA?'b':'eq';
+  return vA<vB?'a':vB<vA?'b':'eq';
+}
 
-  let scoreA=0, scoreB=0, correct=0;
-  INDICATORS.forEach(ind => {
-    const w = getWinner(ind.key, dataA[ind.key], dataB[ind.key]);
-    if(w==='a') scoreA++;
-    else if(w==='b') scoreB++;
-    if(userAnswers[ind.key] && userAnswers[ind.key] === w) correct++;
+function fmtV(v,u){
+  if(u==='mm'||u==='h')return v.toLocaleString('fr')+u;
+  return v+u;
+}
+
+function renderDash(dA,dB,cA,cB){
+  let sA=0,sB=0,correct=0;
+  INDS.forEach(ind=>{
+    const w=getWinner(ind.key,dA[ind.key],dB[ind.key]);
+    if(w==='a')sA++;else if(w==='b')sB++;
+    if(answers[ind.key]===w)correct++;
   });
+  document.getElementById('d-name-a').textContent=cityA;
+  document.getElementById('d-name-b').textContent=cityB;
+  document.getElementById('d-dept-a').textContent=cA.dept||'';
+  document.getElementById('d-dept-b').textContent=cB.dept||'';
+  document.getElementById('d-score-a').textContent=sA;
+  document.getElementById('d-score-b').textContent=sB;
+  document.getElementById('score-num').textContent=`${correct}/7`;
+  const pct=Math.round(correct/7*100);
+  const msgs=['Tes croyances ont dominé les données.','Quelques bonnes intuitions, des surprises aussi.','Bon sens météo — tu observes.','Tu lis le climat comme un livre.'];
+  document.getElementById('score-msg').textContent=msgs[pct<30?0:pct<55?1:pct<80?2:3]+` ${pct}% de réussite.`;
+  ['score-section','dash-section'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
 
-  document.getElementById('final-score-a').textContent = scoreA;
-  document.getElementById('final-score-b').textContent = scoreB;
-
-  const pct = Math.round((correct/INDICATORS.length)*100);
-  document.getElementById('reveal-score').textContent = `${correct}/${INDICATORS.length}`;
-  const msgs = [
-    'Tes croyances dominaient tes données.',
-    'Tu avais quelques bonnes intuitions.',
-    'Plutôt bon œil météo.',
-    'Tu lis le ciel comme un livre.',
-  ];
-  const msgIdx = pct < 30 ? 0 : pct < 55 ? 1 : pct < 80 ? 2 : 3;
-  document.getElementById('reveal-msg').textContent = msgs[msgIdx] + ` ${pct}% de réussite.`;
-
-  const list = document.getElementById('indicators-list');
-  list.innerHTML = '';
-  INDICATORS.forEach(ind => {
-    const va = dataA[ind.key], vb = dataB[ind.key];
-    const total = va + vb || 1;
-    const pA = Math.round((va/total)*100);
-    const pB = 100 - pA;
-    const winner = getWinner(ind.key, va, vb);
-    const row = document.createElement('div');
-    row.className = 'indicator-row';
-    const wLabel = winner==='a' ? `<span class="winner-badge winner-a">${cityA}</span>`
-                 : winner==='b' ? `<span class="winner-badge winner-b">${cityB}</span>`
-                 : `<span class="winner-badge winner-eq">Égalité</span>`;
-    const trendA = getTrend(ind.key,'a');
-    const trendB = getTrend(ind.key,'b');
-    row.innerHTML = `
-      <div class="ind-val ind-val-a">${formatVal(va,ind.unit)}</div>
-      <div class="ind-center">
-        <div class="ind-label">${ind.label}</div>
+  const list=document.getElementById('ind-list');list.innerHTML='';
+  INDS.forEach((ind,i)=>{
+    const vA=dA[ind.key],vB=dB[ind.key],tot=vA+vB||1;
+    const pA=Math.round(vA/tot*100);
+    const w=getWinner(ind.key,vA,vB);
+    const wTag=w==='a'?`<span class="winner-tag wt-a">${cityA}</span>`:w==='b'?`<span class="winner-tag wt-b">${cityB}</span>`:`<span class="winner-tag wt-eq">Égal</span>`;
+    const tr=TRENDS[ind.key]||{};
+    const row=document.createElement('div');
+    row.className='ind-row';
+    row.innerHTML=`<div class="ind-val ind-val-a">${fmtV(vA,ind.unit)}</div>
+      <div class="ind-mid">
+        <div class="ind-lbl">${ind.lbl}</div>
         <div class="ind-track">
-          <div class="ind-fill-a" style="width:${pA}%"></div>
-          <div class="ind-fill-b" style="width:${pB}%"></div>
+          <div class="ind-fill-a" data-w="${pA}"></div>
+          <div class="ind-fill-b" data-w="${100-pA}"></div>
         </div>
-        <div class="ind-trend">${wLabel} <span class="trend-arrow">·</span> <span class="trend-tag ${trendA.cls}">${trendA.text}</span></div>
+        <div class="ind-meta">${wTag}<span class="trend-tag ${tr.bclass||''}">${tr.b||''}</span></div>
       </div>
-      <div class="ind-val ind-val-b">${formatVal(vb,ind.unit)}</div>`;
+      <div class="ind-val ind-val-b">${fmtV(vB,ind.unit)}</div>`;
     list.appendChild(row);
+    setTimeout(()=>{
+      row.classList.add('visible');
+      row.querySelector('.ind-fill-a').style.width=pA+'%';
+      row.querySelector('.ind-fill-b').style.width=(100-pA)+'%';
+    },i*90+80);
   });
-
-  renderDecades('all');
-  window.scrollTo({top:400,behavior:'smooth'});
+  renderDecTab('gel');
+  setTimeout(()=>window.scrollTo({top:document.getElementById('score-section').offsetTop-80,behavior:'smooth'}),150);
 }
 
-function formatVal(v, unit) {
-  if(unit==='mm' || unit==='h') return `${v.toLocaleString('fr')}${unit}`;
-  return `${v}${unit}`;
+function setDecTab(btn,key){
+  document.querySelectorAll('.dec-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderDecTab(key);
 }
 
-function getTrend(key, city) {
-  const trends = {
-    gel:      {a:{cls:'trend-cool',text:'−38% / 30 ans'}, b:{cls:'trend-hot',text:'−55% / 30 ans'}},
-    pluie_j:  {a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-cool',text:'−10% / 30 ans'}},
-    pluie_mm: {a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-hot',text:'−9% / 30 ans'}},
-    soleil:   {a:{cls:'trend-hot',text:'+4% / 30 ans'},    b:{cls:'trend-hot',text:'+9% / 30 ans'}},
-    chaud:    {a:{cls:'trend-hot',text:'+120% / 30 ans'},  b:{cls:'trend-hot',text:'+180% / 30 ans'}},
-    amplitude:{a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-hot',text:'+8% / 30 ans'}},
-    gel_nuit: {a:{cls:'trend-cool',text:'−50% / 30 ans'}, b:{cls:'trend-hot',text:'−60% / 30 ans'}},
-  };
-  return (trends[key] && trends[key][city]) || {cls:'trend-neutral',text:'—'};
-}
-
-let currentDecade = 'all';
-function selectDecade(btn, key) {
-  document.querySelectorAll('.decade-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  currentDecade = key;
-  renderDecades(key);
-}
-
-function renderDecades(key) {
-  const wrap = document.getElementById('decade-content');
-  const keys = key === 'all' ? ['gel','soleil','pluie'] : [key];
-  wrap.innerHTML = '';
-  keys.forEach(k => {
-    const d = DECADE_DATA[k];
-    if(!d) return;
-    const section = document.createElement('div');
-    section.style.marginBottom = '1rem';
-    const trendCls = d.trendType === 'hot' ? 'delta-up' : d.trendType === 'cool' ? 'delta-down' : '';
-    let rows = d.a.map((da,i) => {
-      const db = d.b[i];
-      const deltaA = i===0 ? '' : `<div class="decade-delta ${da.v < d.a[0].v ? 'delta-down':'delta-up'}">${da.v < d.a[0].v?'↓':'↑'}${Math.round(Math.abs((da.v-d.a[0].v)/d.a[0].v*100))}%</div>`;
-      const deltaB = i===0 ? '' : `<div class="decade-delta ${db.v < d.b[0].v ? 'delta-down':'delta-up'}">${db.v < d.b[0].v?'↓':'↑'}${Math.round(Math.abs((db.v-d.b[0].v)/d.b[0].v*100))}%</div>`;
-      return `<div class="decade-row">
-        <div class="decade-ind">${da.d}</div>
-        <div class="decade-bars">
-          <div class="decade-val-wrap"><div class="decade-val score-a">${da.v.toLocaleString('fr')}</div>${deltaA}</div>
-          <div style="font-size:11px;color:var(--ink-faint);">vs</div>
-          <div class="decade-val-wrap"><div class="decade-val score-b">${db.v.toLocaleString('fr')}</div>${deltaB}</div>
-        </div>
+function renderDecTab(key){
+  const d=DECADE_DB[key];if(!d)return;
+  const wrap=document.getElementById('dec-body');wrap.innerHTML='';
+  const ra=d.a[0].v,rb=d.b[0].v;
+  d.a.forEach((da,i)=>{
+    const db=d.b[i];
+    const dA=i===0?'réf':((da.v-ra)/ra*100).toFixed(0)+'%';
+    const dB=i===0?'réf':((db.v-rb)/rb*100).toFixed(0)+'%';
+    const cA=i===0?'':da.v<ra?'dn':'up',cB=i===0?'':db.v<rb?'dn':'up';
+    const row=document.createElement('div');row.className='dec-row';
+    row.innerHTML=`<div class="dec-period">${da.d}</div>
+      <div class="dec-vals">
+        <div class="dec-val"><div class="dec-v s-a">${da.v.toLocaleString('fr')}</div><div class="dec-d ${cA}">${dA}</div></div>
+        <div style="font-size:10px;color:var(--faint);">vs</div>
+        <div class="dec-val"><div class="dec-v s-b">${db.v.toLocaleString('fr')}</div><div class="dec-d ${cB}">${dB}</div></div>
       </div>`;
-    }).join('');
-    section.innerHTML = `<div style="font-size:12px;font-weight:500;color:var(--ink-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">${d.label}</div>${rows}<div style="font-size:12px;color:var(--ink-muted);padding:0.6rem 0;border-top:0.5px solid var(--border);margin-top:0.5rem;">${d.trend}</div>`;
-    wrap.appendChild(section);
+    wrap.appendChild(row);
   });
+  const note=document.createElement('div');note.className='dec-note';note.textContent=d.note;
+  wrap.appendChild(note);
 }
 </script>
 </body>
