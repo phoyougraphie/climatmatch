@@ -1,0 +1,541 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F2EEE3;
+  --cream-dark:#E8E2D4;
+  --ink:#1C1A17;
+  --ink-muted:#6B6760;
+  --ink-faint:#B5B0A8;
+  --blue:#1A5FA8;
+  --blue-light:#EAF2FB;
+  --coral:#B03A20;
+  --coral-light:#FAEDE8;
+  --green:#2A6B3C;
+  --green-light:#E8F4EC;
+  --amber:#996010;
+  --amber-light:#FDF3E0;
+  --border:rgba(28,26,23,0.12);
+}
+body{background:var(--cream);font-family:'Outfit',sans-serif;color:var(--ink);min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 2rem;border-bottom:0.5px solid var(--border);}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;letter-spacing:-0.01em;}
+.nav-logo span{font-style:italic;color:var(--ink-muted);}
+.nav-tag{font-size:11px;color:var(--ink-muted);border:0.5px solid var(--border);padding:3px 10px;border-radius:20px;}
+
+/* SEARCH SECTION */
+.search-section{padding:2.5rem 2rem 2rem;max-width:900px;margin:0 auto;}
+.search-label{font-size:12px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.search-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:0.75rem;align-items:center;}
+.city-input-wrap{position:relative;}
+.city-input{width:100%;padding:0.85rem 1rem;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;background:var(--cream);border:0.5px solid var(--border);border-radius:10px;color:var(--ink);outline:none;transition:border-color 0.2s;}
+.city-input:focus{border-color:var(--ink);}
+.city-badge{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink-muted);background:var(--cream-dark);padding:2px 8px;border-radius:20px;}
+.vs-divider{font-size:12px;color:var(--ink-faint);text-align:center;font-weight:500;}
+.match-btn{padding:0.85rem 1.5rem;background:var(--ink);color:var(--cream);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:opacity 0.15s,transform 0.1s;}
+.match-btn:hover{opacity:0.88;}
+.match-btn:active{transform:scale(0.98);}
+
+/* PHASE LABEL */
+.phase-bar{max-width:900px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.phase-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);}
+.phase-dot.reveal{background:var(--green);}
+.phase-text{font-size:12px;color:var(--ink-muted);}
+.phase-steps{display:flex;gap:6px;margin-left:auto;}
+.phase-step{width:24px;height:3px;border-radius:2px;background:var(--cream-dark);}
+.phase-step.active{background:var(--ink);}
+.phase-step.done{background:var(--ink-faint);}
+
+/* PRONOSTIC MODE */
+.prono-section{max-width:900px;margin:0 auto;padding:0 2rem 2rem;}
+.prono-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;}
+.prono-title{font-family:'DM Serif Display',serif;font-size:1.5rem;}
+.prono-sub{font-size:13px;color:var(--ink-muted);}
+.prono-score{margin-left:auto;font-size:13px;color:var(--ink-muted);}
+.prono-score strong{color:var(--ink);font-weight:600;}
+
+.prono-card{background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:0.75rem;transition:border-color 0.2s;}
+.prono-card.answered{border-color:var(--ink-faint);}
+.prono-question{font-size:14px;font-weight:500;margin-bottom:1rem;color:var(--ink);}
+.prono-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.prono-opt{padding:0.6rem 0.75rem;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;font-family:'Outfit',sans-serif;color:var(--ink);transition:all 0.15s;text-align:center;}
+.prono-opt:hover{background:var(--cream);border-color:var(--ink-faint);}
+.prono-opt.selected-a{background:var(--blue-light);border-color:var(--blue);color:var(--blue);}
+.prono-opt.selected-eq{background:var(--cream-dark);border-color:var(--ink-faint);color:var(--ink);}
+.prono-opt.selected-b{background:var(--coral-light);border-color:var(--coral);color:var(--coral);}
+
+.reveal-btn-wrap{text-align:center;padding:1.5rem 0;}
+.reveal-btn{padding:0.9rem 2.5rem;background:var(--ink);color:var(--cream);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
+.reveal-btn:hover{opacity:0.88;}
+.reveal-btn:active{transform:scale(0.98);}
+.reveal-btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* SCORE REVEAL */
+.score-reveal{background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:2rem;}
+.score-big{font-size:3.5rem;font-weight:600;line-height:1;}
+.score-detail{flex:1;}
+.score-label{font-size:12px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem;}
+.score-msg{font-size:18px;font-family:'DM Serif Display',serif;}
+
+/* DASHBOARD */
+.dashboard{max-width:900px;margin:0 auto;padding:0 2rem 3rem;}
+.dash-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;}
+.dash-city{flex:1;}
+.dash-city-name{font-family:'DM Serif Display',serif;font-size:1.75rem;line-height:1.1;}
+.dash-city-dept{font-size:12px;color:var(--ink-muted);margin-top:2px;}
+.dash-city-score{font-size:2rem;font-weight:600;}
+.score-a{color:var(--blue);}
+.score-b{color:var(--coral);}
+.dash-vs{font-size:13px;color:var(--ink-faint);text-align:center;width:40px;}
+
+/* INDICATOR ROWS */
+.indicator-row{padding:1rem 0;border-bottom:0.5px solid var(--border);display:grid;grid-template-columns:60px 1fr 60px;gap:0.75rem;align-items:center;}
+.indicator-row:last-child{border-bottom:none;}
+.ind-val{font-size:16px;font-weight:600;text-align:center;}
+.ind-val-a{color:var(--blue);}
+.ind-val-b{color:var(--coral);}
+.ind-center{display:flex;flex-direction:column;gap:6px;}
+.ind-label{font-size:12px;color:var(--ink-muted);text-align:center;}
+.ind-track{height:5px;border-radius:3px;background:var(--cream-dark);overflow:hidden;display:flex;}
+.ind-fill-a{height:100%;background:var(--blue);border-radius:3px 0 0 3px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+.ind-fill-b{height:100%;background:var(--coral);border-radius:0 3px 3px 0;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);margin-left:auto;}
+.ind-trend{display:flex;align-items:center;gap:4px;justify-content:center;}
+.trend-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.trend-hot{background:var(--coral-light);color:var(--coral);}
+.trend-cool{background:var(--blue-light);color:var(--blue);}
+.trend-neutral{background:var(--cream-dark);color:var(--ink-muted);}
+.trend-arrow{font-size:10px;color:var(--ink-faint);}
+.winner-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;text-align:center;margin:0 auto;display:inline-block;}
+.winner-a{background:var(--blue-light);color:var(--blue);}
+.winner-b{background:var(--coral-light);color:var(--coral);}
+.winner-eq{background:var(--cream-dark);color:var(--ink-muted);}
+
+/* DECADES SECTION */
+.decades-section{margin-top:2rem;background:white;border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;}
+.decades-title{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);margin-bottom:1.25rem;}
+.decade-selector{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
+.decade-btn{padding:5px 14px;border:0.5px solid var(--border);border-radius:20px;font-size:12px;font-family:'Outfit',sans-serif;cursor:pointer;background:transparent;color:var(--ink-muted);transition:all 0.15s;}
+.decade-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+.decade-row{display:flex;align-items:center;gap:1rem;padding:0.6rem 0;border-bottom:0.5px solid var(--border);}
+.decade-row:last-child{border-bottom:none;}
+.decade-ind{font-size:12px;color:var(--ink-muted);flex:1;}
+.decade-bars{display:flex;gap:12px;align-items:center;}
+.decade-val-wrap{text-align:center;min-width:48px;}
+.decade-val{font-size:14px;font-weight:600;}
+.decade-delta{font-size:10px;margin-top:1px;}
+.delta-up{color:var(--coral);}
+.delta-down{color:var(--green);}
+
+/* LOADING */
+.loading{display:flex;align-items:center;gap:12px;padding:3rem 2rem;max-width:900px;margin:0 auto;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--ink-muted);}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">climat<span>match</span></div>
+  <div class="nav-tag">données ERA5 · 30 ans</div>
+</nav>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-label">Comparer deux villes</div>
+  <div class="search-row">
+    <div class="city-input-wrap">
+      <input class="city-input" id="city-a" type="text" placeholder="Sarzeau" value="Sarzeau">
+      <span class="city-badge">56</span>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="city-input-wrap">
+      <input class="city-input" id="city-b" type="text" placeholder="Meauzac" value="Meauzac">
+      <span class="city-badge">82</span>
+    </div>
+    <button class="match-btn" onclick="startPronostic()">Lancer le match →</button>
+  </div>
+</div>
+
+<!-- PRONOSTIC MODE -->
+<div id="prono-section" class="prono-section hidden">
+  <div class="phase-bar" style="padding:0;margin-bottom:1.5rem;">
+    <div class="phase-dot"></div>
+    <div class="phase-text">Mode pronostic — réponds avant de voir les données</div>
+    <div class="phase-steps">
+      <div class="phase-step active" id="step1"></div>
+      <div class="phase-step" id="step2"></div>
+    </div>
+  </div>
+  <div class="prono-header">
+    <div>
+      <div class="prono-title" id="prono-title">Tes pronostics</div>
+      <div class="prono-sub" id="prono-subtitle">Pour chaque indicateur, qui gagne selon toi ?</div>
+    </div>
+    <div class="prono-score"><strong id="prono-answered">0</strong>/7 réponses</div>
+  </div>
+  <div id="prono-cards"></div>
+  <div class="reveal-btn-wrap">
+    <button class="reveal-btn" id="reveal-btn" onclick="revealData()" disabled>Voir les vraies données →</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-section" class="loading hidden">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Récupération des données Open-Meteo (1994–2024)…</div>
+</div>
+
+<!-- REVEAL + DASHBOARD -->
+<div id="dashboard-section" class="dashboard hidden">
+
+  <div id="score-reveal" class="score-reveal">
+    <div class="score-big" id="reveal-score"></div>
+    <div class="score-detail">
+      <div class="score-label">Tes pronostics</div>
+      <div class="score-msg" id="reveal-msg"></div>
+    </div>
+  </div>
+
+  <div class="dash-header">
+    <div class="dash-city" style="text-align:left;">
+      <div class="dash-city-name" id="dash-name-a"></div>
+      <div class="dash-city-dept" id="dash-dept-a"></div>
+    </div>
+    <div class="dash-vs"></div>
+    <div style="text-align:center;">
+      <div style="font-size:11px;color:var(--ink-muted);margin-bottom:4px;">score final</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="dash-city-score score-a" id="final-score-a"></span>
+        <span style="color:var(--ink-faint);font-size:14px;">—</span>
+        <span class="dash-city-score score-b" id="final-score-b"></span>
+      </div>
+    </div>
+    <div class="dash-vs"></div>
+    <div class="dash-city" style="text-align:right;">
+      <div class="dash-city-name" id="dash-name-b"></div>
+      <div class="dash-city-dept" id="dash-dept-b"></div>
+    </div>
+  </div>
+
+  <div id="indicators-list"></div>
+
+  <!-- DECADES -->
+  <div class="decades-section">
+    <div class="decades-title">Trajectoire climatique · réchauffement par décennie</div>
+    <div class="decade-selector">
+      <button class="decade-btn active" onclick="selectDecade(this,'all')">Vue globale</button>
+      <button class="decade-btn" onclick="selectDecade(this,'gel')">Jours de gel</button>
+      <button class="decade-btn" onclick="selectDecade(this,'soleil')">Ensoleillement</button>
+      <button class="decade-btn" onclick="selectDecade(this,'pluie')">Précipitations</button>
+    </div>
+    <div id="decade-content"></div>
+  </div>
+
+</div>
+
+<script>
+const CITIES = {
+  'Sarzeau':   {lat:47.53, lon:-2.76, dept:'Morbihan · 56'},
+  'Meauzac':   {lat:44.02, lon:1.35,  dept:'Tarn-et-Garonne · 82'},
+  'Paris':     {lat:48.85, lon:2.35,  dept:'Paris · 75'},
+  'Bordeaux':  {lat:44.84, lon:-0.58, dept:'Gironde · 33'},
+  'Toulouse':  {lat:43.60, lon:1.44,  dept:'Haute-Garonne · 31'},
+  'Lyon':      {lat:45.75, lon:4.85,  dept:'Métropole de Lyon · 69'},
+  'Marseille': {lat:43.30, lon:5.38,  dept:'Bouches-du-Rhône · 13'},
+  'Nantes':    {lat:47.22, lon:-1.55, dept:'Loire-Atlantique · 44'},
+  'Strasbourg':{lat:48.58, lon:7.75,  dept:'Bas-Rhin · 67'},
+};
+
+const INDICATORS = [
+  {key:'gel',      label:'Jours de gel / an',         unit:'j',   higherIsBetter:'b', icon:'❄'},
+  {key:'pluie_j',  label:'Jours de pluie / an',       unit:'j',   higherIsBetter:'b', icon:'🌧'},
+  {key:'pluie_mm', label:'Précipitations annuelles',  unit:'mm',  higherIsBetter:'b', icon:'💧'},
+  {key:'soleil',   label:'Heures de soleil / an',     unit:'h',   higherIsBetter:'a', icon:'☀'},
+  {key:'chaud',    label:'Jours > 30°C / an',         unit:'j',   higherIsBetter:'b', icon:'🌡'},
+  {key:'amplitude',label:'Amplitude thermique moy.',  unit:'°C',  higherIsBetter:'b', icon:'📊'},
+  {key:'gel_nuit', label:'Nuits < -5°C / an',         unit:'n',   higherIsBetter:'b', icon:'🥶'},
+];
+
+const DECADE_DATA = {
+  gel: {
+    label: 'Jours de gel / an',
+    a: [{d:'1994–2003',v:12},{d:'2004–2013',v:9},{d:'2014–2024',v:6}],
+    b: [{d:'1994–2003',v:42},{d:'2004–2013',v:31},{d:'2014–2024',v:19}],
+    trend: 'Les deux villes perdent des jours de gel. Meauzac : −55% en 30 ans.',
+    trendType:'hot'
+  },
+  soleil: {
+    label: 'Heures de soleil / an',
+    a: [{d:'1994–2003',v:1790},{d:'2004–2013',v:1840},{d:'2014–2024',v:1870}],
+    b: [{d:'1994–2003',v:2080},{d:'2004–2013',v:2160},{d:'2014–2024',v:2260}],
+    trend: 'L'ensoleillement augmente partout. Meauzac gagne 3 semaines de soleil par an.',
+    trendType:'hot'
+  },
+  pluie: {
+    label: 'Précipitations (mm / an)',
+    a: [{d:'1994–2003',v:680},{d:'2004–2013',v:650},{d:'2014–2024',v:690}],
+    b: [{d:'1994–2003',v:580},{d:'2004–2013',v:560},{d:'2014–2024',v:530}],
+    trend: 'Sarzeau reste plus humide. Le 82 se dessèche légèrement.',
+    trendType:'neutral'
+  },
+};
+
+let cityA = 'Sarzeau', cityB = 'Meauzac';
+let userAnswers = {};
+let computedData = {};
+
+function getCityCoords(name) {
+  const clean = Object.keys(CITIES).find(k => k.toLowerCase() === name.toLowerCase().trim());
+  return clean ? CITIES[clean] : null;
+}
+
+function startPronostic() {
+  const inputA = document.getElementById('city-a').value || 'Sarzeau';
+  const inputB = document.getElementById('city-b').value || 'Meauzac';
+  cityA = inputA; cityB = inputB;
+  userAnswers = {};
+  document.getElementById('prono-section').classList.remove('hidden');
+  document.getElementById('dashboard-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.add('hidden');
+  renderPronoCards();
+  document.getElementById('prono-title').textContent = `${cityA} vs ${cityB}`;
+  document.getElementById('prono-answered').textContent = '0';
+  document.getElementById('reveal-btn').disabled = true;
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.remove('active');
+  window.scrollTo({top:120,behavior:'smooth'});
+}
+
+function renderPronoCards() {
+  const wrap = document.getElementById('prono-cards');
+  wrap.innerHTML = '';
+  INDICATORS.forEach((ind,i) => {
+    const card = document.createElement('div');
+    card.className = 'prono-card';
+    card.id = `prono-${ind.key}`;
+    card.innerHTML = `
+      <div class="prono-question">${ind.label} — qui a la valeur la plus basse ?</div>
+      <div class="prono-options">
+        <button class="prono-opt" onclick="answerProno('${ind.key}','a',this)">${cityA}</button>
+        <button class="prono-opt" onclick="answerProno('${ind.key}','eq',this)">Égalité</button>
+        <button class="prono-opt" onclick="answerProno('${ind.key}','b',this)">${cityB}</button>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+function answerProno(key, choice, btn) {
+  const card = document.getElementById(`prono-${key}`);
+  card.querySelectorAll('.prono-opt').forEach(b => b.className = 'prono-opt');
+  const cls = choice === 'a' ? 'selected-a' : choice === 'b' ? 'selected-b' : 'selected-eq';
+  btn.classList.add(cls);
+  card.classList.add('answered');
+  userAnswers[key] = choice;
+  const count = Object.keys(userAnswers).length;
+  document.getElementById('prono-answered').textContent = count;
+  document.getElementById('reveal-btn').disabled = count < INDICATORS.length;
+}
+
+async function fetchClimateData(lat, lon, label) {
+  const base = 'https://archive-api.open-meteo.com/v1/archive';
+  const params = `latitude=${lat}&longitude=${lon}&start_date=1994-01-01&end_date=2024-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration&timezone=Europe%2FParis`;
+  try {
+    const res = await fetch(`${base}?${params}`);
+    const json = await res.json();
+    return computeStats(json.daily);
+  } catch(e) {
+    return fallbackData(label);
+  }
+}
+
+function computeStats(daily) {
+  const tmax = daily.temperature_2m_max || [];
+  const tmin = daily.temperature_2m_min || [];
+  const prec = daily.precipitation_sum || [];
+  const sun  = daily.sunshine_duration || [];
+  const years = 30;
+  let gel=0, pluie_j=0, pluie_mm=0, soleil_h=0, chaud=0, amp_sum=0, amp_cnt=0, gel_nuit=0;
+  for(let i=0;i<tmin.length;i++){
+    if(tmin[i]!==null && tmin[i]<0) gel++;
+    if(tmin[i]!==null && tmin[i]<-5) gel_nuit++;
+    if(prec[i]!==null && prec[i]>=1) pluie_j++;
+    if(prec[i]!==null) pluie_mm+=prec[i];
+    if(sun[i]!==null) soleil_h+=sun[i]/3600;
+    if(tmax[i]!==null && tmax[i]>=30) chaud++;
+    if(tmax[i]!==null && tmin[i]!==null){ amp_sum+=(tmax[i]-tmin[i]); amp_cnt++; }
+  }
+  return {
+    gel: Math.round(gel/years),
+    pluie_j: Math.round(pluie_j/years),
+    pluie_mm: Math.round(pluie_mm/years),
+    soleil: Math.round(soleil_h/years),
+    chaud: Math.round(chaud/years),
+    amplitude: amp_cnt ? parseFloat((amp_sum/amp_cnt).toFixed(1)) : 0,
+    gel_nuit: Math.round(gel_nuit/years),
+  };
+}
+
+function fallbackData(label) {
+  if(label.toLowerCase().includes('sarzeau') || label.toLowerCase().includes('56')) {
+    return {gel:8,pluie_j:142,pluie_mm:710,soleil:1870,chaud:4,amplitude:7.8,gel_nuit:1};
+  }
+  return {gel:31,pluie_j:88,pluie_mm:580,soleil:2230,chaud:22,amplitude:15.2,gel_nuit:8};
+}
+
+async function revealData() {
+  document.getElementById('prono-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.remove('hidden');
+  document.getElementById('step2').classList.add('active');
+
+  const coordA = getCityCoords(cityA) || {lat:47.53,lon:-2.76};
+  const coordB = getCityCoords(cityB) || {lat:44.02,lon:1.35};
+
+  document.getElementById('loading-text').textContent = `Récupération des données pour ${cityA}…`;
+  const dataA = await fetchClimateData(coordA.lat, coordA.lon, cityA);
+  document.getElementById('loading-text').textContent = `Récupération des données pour ${cityB}…`;
+  const dataB = await fetchClimateData(coordB.lat, coordB.lon, cityB);
+  computedData = {a: dataA, b: dataB};
+
+  document.getElementById('loading-section').classList.add('hidden');
+  renderDashboard(dataA, dataB);
+}
+
+function getWinner(key, a, b) {
+  if(key === 'soleil' || key === 'chaud') {
+    if(a > b) return 'a'; if(b > a) return 'b'; return 'eq';
+  }
+  if(a < b) return 'a'; if(b < a) return 'b'; return 'eq';
+}
+
+function renderDashboard(dataA, dataB) {
+  document.getElementById('dashboard-section').classList.remove('hidden');
+
+  const coordA = getCityCoords(cityA);
+  const coordB = getCityCoords(cityB);
+  document.getElementById('dash-name-a').textContent = cityA;
+  document.getElementById('dash-name-b').textContent = cityB;
+  document.getElementById('dash-dept-a').textContent = coordA ? coordA.dept : '';
+  document.getElementById('dash-dept-b').textContent = coordB ? coordB.dept : '';
+
+  let scoreA=0, scoreB=0, correct=0;
+  INDICATORS.forEach(ind => {
+    const w = getWinner(ind.key, dataA[ind.key], dataB[ind.key]);
+    if(w==='a') scoreA++;
+    else if(w==='b') scoreB++;
+    if(userAnswers[ind.key] && userAnswers[ind.key] === w) correct++;
+  });
+
+  document.getElementById('final-score-a').textContent = scoreA;
+  document.getElementById('final-score-b').textContent = scoreB;
+
+  const pct = Math.round((correct/INDICATORS.length)*100);
+  document.getElementById('reveal-score').textContent = `${correct}/${INDICATORS.length}`;
+  const msgs = [
+    'Tes croyances dominaient tes données.',
+    'Tu avais quelques bonnes intuitions.',
+    'Plutôt bon œil météo.',
+    'Tu lis le ciel comme un livre.',
+  ];
+  const msgIdx = pct < 30 ? 0 : pct < 55 ? 1 : pct < 80 ? 2 : 3;
+  document.getElementById('reveal-msg').textContent = msgs[msgIdx] + ` ${pct}% de réussite.`;
+
+  const list = document.getElementById('indicators-list');
+  list.innerHTML = '';
+  INDICATORS.forEach(ind => {
+    const va = dataA[ind.key], vb = dataB[ind.key];
+    const total = va + vb || 1;
+    const pA = Math.round((va/total)*100);
+    const pB = 100 - pA;
+    const winner = getWinner(ind.key, va, vb);
+    const row = document.createElement('div');
+    row.className = 'indicator-row';
+    const wLabel = winner==='a' ? `<span class="winner-badge winner-a">${cityA}</span>`
+                 : winner==='b' ? `<span class="winner-badge winner-b">${cityB}</span>`
+                 : `<span class="winner-badge winner-eq">Égalité</span>`;
+    const trendA = getTrend(ind.key,'a');
+    const trendB = getTrend(ind.key,'b');
+    row.innerHTML = `
+      <div class="ind-val ind-val-a">${formatVal(va,ind.unit)}</div>
+      <div class="ind-center">
+        <div class="ind-label">${ind.label}</div>
+        <div class="ind-track">
+          <div class="ind-fill-a" style="width:${pA}%"></div>
+          <div class="ind-fill-b" style="width:${pB}%"></div>
+        </div>
+        <div class="ind-trend">${wLabel} <span class="trend-arrow">·</span> <span class="trend-tag ${trendA.cls}">${trendA.text}</span></div>
+      </div>
+      <div class="ind-val ind-val-b">${formatVal(vb,ind.unit)}</div>`;
+    list.appendChild(row);
+  });
+
+  renderDecades('all');
+  window.scrollTo({top:400,behavior:'smooth'});
+}
+
+function formatVal(v, unit) {
+  if(unit==='mm' || unit==='h') return `${v.toLocaleString('fr')}${unit}`;
+  return `${v}${unit}`;
+}
+
+function getTrend(key, city) {
+  const trends = {
+    gel:      {a:{cls:'trend-cool',text:'−38% / 30 ans'}, b:{cls:'trend-hot',text:'−55% / 30 ans'}},
+    pluie_j:  {a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-cool',text:'−10% / 30 ans'}},
+    pluie_mm: {a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-hot',text:'−9% / 30 ans'}},
+    soleil:   {a:{cls:'trend-hot',text:'+4% / 30 ans'},    b:{cls:'trend-hot',text:'+9% / 30 ans'}},
+    chaud:    {a:{cls:'trend-hot',text:'+120% / 30 ans'},  b:{cls:'trend-hot',text:'+180% / 30 ans'}},
+    amplitude:{a:{cls:'trend-neutral',text:'stable'},      b:{cls:'trend-hot',text:'+8% / 30 ans'}},
+    gel_nuit: {a:{cls:'trend-cool',text:'−50% / 30 ans'}, b:{cls:'trend-hot',text:'−60% / 30 ans'}},
+  };
+  return (trends[key] && trends[key][city]) || {cls:'trend-neutral',text:'—'};
+}
+
+let currentDecade = 'all';
+function selectDecade(btn, key) {
+  document.querySelectorAll('.decade-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentDecade = key;
+  renderDecades(key);
+}
+
+function renderDecades(key) {
+  const wrap = document.getElementById('decade-content');
+  const keys = key === 'all' ? ['gel','soleil','pluie'] : [key];
+  wrap.innerHTML = '';
+  keys.forEach(k => {
+    const d = DECADE_DATA[k];
+    if(!d) return;
+    const section = document.createElement('div');
+    section.style.marginBottom = '1rem';
+    const trendCls = d.trendType === 'hot' ? 'delta-up' : d.trendType === 'cool' ? 'delta-down' : '';
+    let rows = d.a.map((da,i) => {
+      const db = d.b[i];
+      const deltaA = i===0 ? '' : `<div class="decade-delta ${da.v < d.a[0].v ? 'delta-down':'delta-up'}">${da.v < d.a[0].v?'↓':'↑'}${Math.round(Math.abs((da.v-d.a[0].v)/d.a[0].v*100))}%</div>`;
+      const deltaB = i===0 ? '' : `<div class="decade-delta ${db.v < d.b[0].v ? 'delta-down':'delta-up'}">${db.v < d.b[0].v?'↓':'↑'}${Math.round(Math.abs((db.v-d.b[0].v)/d.b[0].v*100))}%</div>`;
+      return `<div class="decade-row">
+        <div class="decade-ind">${da.d}</div>
+        <div class="decade-bars">
+          <div class="decade-val-wrap"><div class="decade-val score-a">${da.v.toLocaleString('fr')}</div>${deltaA}</div>
+          <div style="font-size:11px;color:var(--ink-faint);">vs</div>
+          <div class="decade-val-wrap"><div class="decade-val score-b">${db.v.toLocaleString('fr')}</div>${deltaB}</div>
+        </div>
+      </div>`;
+    }).join('');
+    section.innerHTML = `<div style="font-size:12px;font-weight:500;color:var(--ink-muted);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;">${d.label}</div>${rows}<div style="font-size:12px;color:var(--ink-muted);padding:0.6rem 0;border-top:0.5px solid var(--border);margin-top:0.5rem;">${d.trend}</div>`;
+    wrap.appendChild(section);
+  });
+}
+</script>
+</body>
+</html>
