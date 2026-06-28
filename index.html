@@ -12,7 +12,7 @@
 :root{
   --bg:#0E0D0B;--surface:#161512;--surface2:#1E1C18;
   --border:rgba(255,255,255,0.07);--border-hi:rgba(255,255,255,0.15);
-  --text:#F0EDE6;--muted:#7A7570;--faint:#3A3733;
+  --text:#F0EDE6;--muted:#A19B94;--faint:#514D47;
   --blue:#4A9EE8;--coral:#E86A45;--amber:#C8901A;--green:#3A9E6A;
 }
 html{scroll-behavior:smooth;}
@@ -112,6 +112,7 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .launch-btn:hover{opacity:0.88;transform:translateY(-1px);}
 .launch-btn:active{transform:scale(0.97);}
 .launch-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.launch-btn:focus-visible,.dec-tab:focus-visible{outline:2px solid var(--text);outline-offset:3px;}
 .selected-display{display:flex;align-items:center;gap:6px;margin-top:6px;min-height:20px;}
 .sel-badge{font-size:11px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;}
 .sel-badge-a{background:rgba(74,158,232,0.12);color:var(--blue);}
@@ -119,64 +120,12 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .sel-clear{font-size:11px;color:var(--muted);cursor:pointer;margin-left:auto;}
 .sel-clear:hover{color:var(--text);}
 
-/* ── BOARD ── */
-.board-section{max-width:860px;margin:0 auto;padding:0 2rem 2rem;position:relative;z-index:1;}
-.board-intro{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;}
-.flap-board{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.75rem;position:relative;overflow:hidden;}
-.flap-board::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,144,26,0.05) 0%,transparent 70%);pointer-events:none;}
-.board-lbl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.1em;}
-.flap-chars{display:flex;gap:4px;flex-wrap:wrap;min-height:52px;margin-bottom:0.5rem;}
-.flap-char{width:28px;height:44px;background:#111;border:0.5px solid var(--faint);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;color:var(--amber);position:relative;overflow:hidden;flex-shrink:0;}
-.flap-char.space{background:transparent;border-color:transparent;}
-.flap-char.flipping{animation:flip 0.22s ease-in-out;}
-@keyframes flip{0%{transform:perspective(200px) rotateX(0deg);opacity:1;}50%{transform:perspective(200px) rotateX(-90deg);opacity:0.3;}100%{transform:perspective(200px) rotateX(0deg);opacity:1;}}
-.flap-midline{height:1px;background:rgba(0,0,0,0.6);position:absolute;top:50%;left:0;right:0;}
-.board-sub{font-size:12px;color:var(--muted);font-style:italic;margin-top:0.75rem;}
-.prono-hint{display:flex;align-items:center;gap:8px;padding:0.75rem 1rem;background:rgba(200,144,26,0.06);border:0.5px solid rgba(200,144,26,0.15);border-radius:8px;font-size:12px;color:var(--amber);margin-top:1rem;line-height:1.5;}
-
-/* ── PRONOSTIC ── */
-.prono-section{max-width:860px;margin:0 auto;padding:0 2rem 2rem;position:relative;z-index:1;}
-.sec-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
-.sec-title{font-family:'DM Serif Display',serif;font-size:1.6rem;}
-.sec-sub{font-size:13px;color:var(--muted);}
-.prono-counter{margin-left:auto;font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
-.prono-counter strong{color:var(--text);}
-
-/* PRONO CARD WITH ICON */
-.pcard{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1.1rem 1.4rem;margin-bottom:8px;opacity:0;transform:translateY(10px);transition:all 0.35s ease;}
-.pcard.visible{opacity:1;transform:translateY(0);}
-.pcard.done{border-color:var(--faint);opacity:0.65;}
-.pcard-head{display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.9rem;}
-.pcard-icon{width:32px;height:32px;flex-shrink:0;margin-top:2px;}
-.pcard-icon svg{width:100%;height:100%;}
-.pcard-text{}
-.pcard-q{font-size:14px;color:var(--text);margin-bottom:0.3rem;line-height:1.5;font-weight:500;}
-.pcard-hint{font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;}
-.pcard-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
-.popt{padding:0.55rem;border:0.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;background:transparent;font-family:'Outfit',sans-serif;color:var(--muted);transition:all 0.15s;text-align:center;}
-.popt:hover{background:var(--surface2);color:var(--text);border-color:var(--border-hi);}
-.popt.sel-a{background:rgba(74,158,232,0.12);border-color:var(--blue);color:var(--blue);}
-.popt.sel-eq{background:var(--surface2);border-color:var(--border-hi);color:var(--text);}
-.popt.sel-b{background:rgba(232,106,69,0.12);border-color:var(--coral);color:var(--coral);}
-.reveal-wrap{text-align:center;padding:1.5rem 0 0.5rem;}
-.reveal-btn{padding:0.9rem 2.5rem;background:var(--text);color:var(--bg);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:-0.01em;}
-.reveal-btn:disabled{opacity:0.25;cursor:not-allowed;}
-.reveal-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(240,237,230,0.1);}
-
 /* ── LOADING ── */
 .loading-section{max-width:860px;margin:0 auto;padding:2rem;position:relative;z-index:1;}
 .loading-inner{display:flex;align-items:center;gap:16px;padding:1.5rem;}
 .spinner{width:16px;height:16px;border:1.5px solid var(--faint);border-top-color:var(--text);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
-
-/* ── SCORE ── */
-.score-section{max-width:860px;margin:0 auto;padding:0 2rem 1.5rem;position:relative;z-index:1;}
-.score-card{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem 2rem;display:flex;align-items:center;gap:2rem;position:relative;overflow:hidden;}
-.score-card::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(200,144,26,0.07) 0%,transparent 70%);pointer-events:none;}
-.score-num{font-family:'DM Serif Display',serif;font-size:3.5rem;line-height:1;flex-shrink:0;}
-.score-lbl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
-.score-msg{font-size:17px;line-height:1.4;}
 
 /* ── DASHBOARD ── */
 .dash-section{max-width:860px;margin:0 auto;padding:0 2rem 4rem;position:relative;z-index:1;}
@@ -190,48 +139,6 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .dash-divider{display:flex;flex-direction:column;align-items:center;padding-top:0.5rem;flex-shrink:0;}
 .dash-vs{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--faint);}
 .dash-sep{width:0.5px;height:40px;background:var(--faint);margin:6px 0;}
-
-/* ── TUG-OF-WAR INDICATORS ── */
-.ind-list{border-top:0.5px solid var(--border);}
-.ind-row{padding:0.85rem 0;border-bottom:0.5px solid var(--border);opacity:0;transform:translateY(8px);transition:all 0.4s ease;cursor:default;}
-.ind-row.visible{opacity:1;transform:translateY(0);}
-.ind-row:last-child{border-bottom:none;}
-.ind-row-label{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
-.ind-icon{width:16px;height:16px;opacity:0.6;flex-shrink:0;}
-.ind-icon svg{width:100%;height:100%;}
-.ind-lbl{font-size:11px;color:var(--muted);}
-.ind-trend-tag{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:auto;}
-.trend-hot{color:var(--coral);}
-.trend-cool{color:var(--green);}
-
-/* The tug-of-war track */
-.tug-track{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;gap:0;}
-.tug-side{display:flex;flex-direction:column;gap:2px;}
-.tug-side-a{align-items:flex-end;text-align:right;}
-.tug-side-b{align-items:flex-start;}
-.tug-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;line-height:1;}
-.tug-val-a{color:var(--blue);}
-.tug-val-b{color:var(--coral);}
-.tug-sub{font-size:10px;line-height:1.3;}
-.tug-sub-a{color:var(--blue);opacity:0.7;}
-.tug-sub-b{color:var(--coral);opacity:0.7;}
-
-/* The rope */
-.tug-rope-wrap{position:relative;height:28px;display:flex;align-items:center;}
-.tug-rope{position:absolute;inset:0;display:flex;align-items:center;gap:0;overflow:hidden;border-radius:4px;}
-.tug-fill-a{height:100%;background:linear-gradient(to right,rgba(74,158,232,0.22),rgba(74,158,232,0.12));border-radius:4px 0 0 4px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);width:0%;}
-.tug-fill-b{height:100%;background:linear-gradient(to left,rgba(232,106,69,0.22),rgba(232,106,69,0.12));border-radius:0 4px 4px 0;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);width:0%;}
-.tug-center{position:absolute;left:50%;transform:translateX(-50%);width:1px;height:100%;background:var(--border-hi);}
-.tug-knot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;border:2px solid;transform:translate(-50%,-50%);transition:left 1.2s cubic-bezier(0.4,0,0.2,1);z-index:2;}
-.tug-knot-a{border-color:var(--blue);background:var(--bg);}
-.tug-knot-b{border-color:var(--coral);background:var(--bg);}
-.tug-knot-eq{border-color:var(--muted);background:var(--bg);}
-
-/* winner badge centered */
-.tug-winner{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;z-index:3;}
-.wt-a{background:rgba(74,158,232,0.15);color:var(--blue);}
-.wt-b{background:rgba(232,106,69,0.15);color:var(--coral);}
-.wt-eq{background:var(--surface2);color:var(--muted);}
 
 /* ── DECADES ── */
 .decade-section{background:var(--surface);border:0.5px solid var(--border);border-radius:14px;padding:1.5rem;margin-top:1.5rem;}
@@ -255,6 +162,70 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .dec-legend{display:flex;justify-content:flex-end;gap:16px;margin:-0.5rem 0 0.5rem;font-size:10px;font-family:'JetBrains Mono',monospace;}
 .dec-empty{font-size:12px;color:var(--muted);padding:1rem 0;}
 
+/* ── SIMPLE DATA STORY ── */
+.dash-section{max-width:1040px;padding:0 2rem 4rem;}
+.results-head{margin:1.25rem 0 1.5rem;}
+.results-head h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:400;line-height:1.05;margin-bottom:.55rem;}
+.results-head p{font-size:15px;color:var(--muted);max-width:560px;line-height:1.5;}
+.dash-cities{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:1.15rem 1.25rem;background:rgba(22,21,18,.78);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(12px);}
+.dash-city-role{font-size:11px;font-weight:700;margin-bottom:.25rem;}
+.dash-city-name{font-size:clamp(1.55rem,4vw,2.15rem);}
+.dash-divider{padding:0;}
+.dash-vs{font-size:12px;color:var(--muted);}
+
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.metric-card{background:rgba(22,21,18,.9);border:1px solid var(--border);border-radius:16px;padding:1.25rem;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease,border-color .2s ease;}
+.metric-card.visible{opacity:1;transform:none;}
+.metric-card:hover{border-color:var(--border-hi);}
+.metric-card:nth-child(7){grid-column:1/-1;}
+.metric-head{display:flex;align-items:flex-start;gap:.8rem;}
+.metric-icon{width:38px;height:38px;flex:0 0 38px;padding:8px;border-radius:12px;background:var(--surface2);}
+.metric-icon svg{width:100%;height:100%;}
+.metric-title{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:.25rem;}
+.metric-help{font-size:12px;color:var(--muted);line-height:1.4;max-width:36ch;}
+.metric-verdict{font-size:14px;line-height:1.4;margin-top:1rem;min-height:2.5em;}
+.metric-verdict strong{font-size:16px;}
+.metric-columns{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:end;margin-top:.85rem;}
+.metric-city{display:flex;flex-direction:column;align-items:center;min-width:0;}
+.metric-number{font-family:'JetBrains Mono',monospace;font-size:clamp(1.25rem,3vw,1.65rem);font-weight:700;line-height:1;text-align:center;}
+.metric-unit{display:block;font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;color:var(--muted);margin-top:4px;}
+.metric-bar-zone{height:96px;width:100%;display:flex;align-items:flex-end;justify-content:center;margin:.6rem 0 .55rem;}
+.metric-bar{width:min(64px,48%);height:100%;border-radius:12px 12px 4px 4px;transform:scaleY(var(--bar-scale));transform-origin:bottom;transition:transform .9s cubic-bezier(.16,1,.3,1);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
+.metric-bar-a{background:linear-gradient(180deg,#73B9F5,var(--blue));}
+.metric-bar-b{background:linear-gradient(180deg,#F09273,var(--coral));}
+.metric-city-name{font-size:13px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.metric-difference{text-align:center;font-size:11px;color:var(--muted);margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border);}
+
+.decade-section{margin-top:2.5rem;padding:1.35rem;border-radius:16px;}
+.dec-head{align-items:flex-end;}
+.dec-title{font-family:'DM Serif Display',serif;font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.1;text-transform:none;letter-spacing:-.01em;color:var(--text);margin-bottom:.35rem;}
+.dec-intro{font-size:13px;color:var(--muted);line-height:1.45;}
+.dec-tabs{margin-bottom:1rem;}
+.dec-tab{padding:7px 12px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;}
+.dec-legend{display:none;}
+#dec-body{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.dec-row{display:block;padding:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px;}
+.dec-period{font-size:11px;margin-bottom:.75rem;}
+.dec-city-line{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;padding:.35rem 0;}
+.dec-city-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dec-city-value{display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:nowrap;}
+.dec-v{font-size:15px;}
+.dec-d{font-size:9px;}
+.dec-note{grid-column:1/-1;font-size:13px;background:rgba(255,255,255,.025);border-radius:10px;padding:.85rem 1rem;font-style:normal;}
+
+@media(max-width:760px){
+  .dash-section{padding:0 1rem 3rem;}
+  .results-head{margin-top:.5rem;}
+  .metric-grid{grid-template-columns:1fr;}
+  .metric-card:nth-child(7){grid-column:auto;}
+  #dec-body{grid-template-columns:1fr;}
+  .dec-head{align-items:flex-start;}
+  .dec-source{margin-top:.25rem;}
+}
+@media(prefers-reduced-motion:reduce){
+  .metric-card,.metric-bar{transition:none;}
+}
+
 /* ── FOOTER ── */
 .footer{max-width:860px;margin:0 auto;padding:1.5rem 2rem 3rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;}
 .footer-left{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
@@ -262,8 +233,6 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .footer-right a:hover{color:var(--text);}
 .hidden{display:none!important;}
 
-/* ── WEATHER REVEAL ANIMATION ── */
-@keyframes ind-pop{0%{opacity:0;transform:translateY(12px) scale(0.97)}100%{opacity:1;transform:none}}
 </style>
 </head>
 <body data-climate="split">
@@ -286,7 +255,7 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
     <div class="climate-banner-copy">
       <div class="hero-tag">données contre croyances</div>
       <div class="hero-title">Le vrai match entre <em>deux villes</em></div>
-      <div class="hero-sub">30 ans de climat réel. Pronostique d’abord, puis laisse les données déplacer la ligne.</div>
+      <div class="hero-sub">Choisis deux villes. Les chiffres montrent tout de suite où il gèle, pleut ou chauffe le plus.</div>
     </div>
   </div>
 
@@ -302,33 +271,7 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
       <div class="autocomplete-list hidden" id="list-b"></div>
       <div class="selected-display" id="sel-display-b"></div>
     </div>
-    <button class="launch-btn" id="launch-btn" onclick="startMatch()" disabled>Lancer →</button>
-  </div>
-</div>
-
-<!-- BOARD -->
-<div id="board-section" class="board-section hidden">
-  <div class="board-intro">Mode pronostic actif</div>
-  <div class="flap-board">
-    <div class="board-lbl">Message</div>
-    <div class="flap-chars" id="flap-display"></div>
-    <div class="board-sub" id="board-sub"></div>
-    <div class="prono-hint">Réponds aux 7 questions ci-dessous pour déverrouiller les vraies données.</div>
-  </div>
-</div>
-
-<!-- PRONOSTIC -->
-<div id="prono-section" class="prono-section hidden">
-  <div class="sec-header">
-    <div>
-      <div class="sec-title">Tes pronostics</div>
-      <div class="sec-sub">Pour chaque question, choisis ta ville ou coche "Les deux pareil"</div>
-    </div>
-    <div class="prono-counter"><strong id="prono-cnt">0</strong>/7</div>
-  </div>
-  <div id="prono-cards"></div>
-  <div class="reveal-wrap">
-    <button class="reveal-btn" id="reveal-btn" onclick="doReveal()" disabled>Révéler les données réelles →</button>
+    <button class="launch-btn" id="launch-btn" onclick="startMatch()" disabled>Comparer →</button>
   </div>
 </div>
 
@@ -340,47 +283,41 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
   </div>
 </div>
 
-<!-- SCORE -->
-<div id="score-section" class="score-section hidden">
-  <div class="score-card">
-    <div class="score-num" id="score-num">-</div>
-    <div>
-      <div class="score-lbl">Pronostics corrects</div>
-      <div class="score-msg" id="score-msg"></div>
-    </div>
-  </div>
-</div>
-
 <!-- DASHBOARD -->
 <div id="dash-section" class="dash-section hidden">
+  <div class="results-head">
+    <h2>Le climat, en un coup d’œil</h2>
+    <p>Pour chaque météo, la colonne la plus haute montre la ville qui en a le plus.</p>
+  </div>
   <div class="dash-cities">
     <div class="dash-city">
+      <div class="dash-city-role s-a">Ville bleue</div>
       <div class="dash-city-name" id="d-name-a"></div>
       <div class="dash-city-dept" id="d-dept-a"></div>
-      <div class="dash-city-score s-a" id="d-score-a"></div>
     </div>
     <div class="dash-divider">
-      <div class="dash-vs">VS</div>
-      <div class="dash-sep"></div>
-      <div class="dash-vs">7 rounds</div>
+      <div class="dash-vs">contre</div>
     </div>
     <div class="dash-city" style="text-align:right;">
+      <div class="dash-city-role s-b">Ville orange</div>
       <div class="dash-city-name" id="d-name-b"></div>
       <div class="dash-city-dept" id="d-dept-b"></div>
-      <div class="dash-city-score s-b" id="d-score-b"></div>
     </div>
   </div>
-  <div class="ind-list" id="ind-list"></div>
+  <div class="metric-grid" id="ind-list"></div>
   <div class="decade-section">
     <div class="dec-head">
-      <div class="dec-title">Trajectoire · réchauffement décennal</div>
+      <div>
+        <div class="dec-title">Comment le climat a changé</div>
+        <div class="dec-intro">Chaque case résume dix années. Compare la première à la dernière.</div>
+      </div>
       <div class="dec-source">Moyennes annuelles · ERA5</div>
     </div>
     <div class="dec-tabs">
-      <button class="dec-tab on" onclick="setDecTab(this,'gel')">Gel</button>
+      <button class="dec-tab on" onclick="setDecTab(this,'gel')">Jours de gel</button>
       <button class="dec-tab" onclick="setDecTab(this,'soleil')">Soleil</button>
       <button class="dec-tab" onclick="setDecTab(this,'pluie')">Pluie</button>
-      <button class="dec-tab" onclick="setDecTab(this,'chaud')">Chaleur</button>
+      <button class="dec-tab" onclick="setDecTab(this,'chaud')">Grande chaleur</button>
     </div>
     <div class="dec-legend"><span class="s-a" id="dec-name-a"></span><span class="s-b" id="dec-name-b"></span></div>
     <div id="dec-body"></div>
@@ -412,49 +349,6 @@ function highlightWeatherIcon(key) {
 }
 
 // ═══════════════════════════════════════════════════
-// SPLIT FLAP
-// ═══════════════════════════════════════════════════
-const MSGS = ['CROYANCES vs DONNEES', 'QUI GELE LE PLUS ?', 'LA METEO NE MENT PAS', 'RECHAUFFEMENT +1.4C'];
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:- ';
-let flapTimer = null, flapIdx = 0;
-
-function buildFlap(container, text) {
-  container.innerHTML = '';
-  [...text].forEach(ch => {
-    const d = document.createElement('div');
-    d.className = ch === ' ' ? 'flap-char space' : 'flap-char';
-    d.textContent = ch;
-    const ml = document.createElement('div'); ml.className = 'flap-midline';
-    d.appendChild(ml); container.appendChild(d);
-  });
-}
-
-async function animateFlap(container, target) {
-  const els = [...container.children].filter(c => !c.classList.contains('space'));
-  const tgt = [...target.replace(/ /g, '')];
-  await Promise.all(els.map((el, i) => new Promise(res => {
-    let f = 0, max = 6 + Math.floor(Math.random() * 5);
-    const iv = setInterval(() => {
-      if (f < max) { el.textContent = CHARS[Math.floor(Math.random() * CHARS.length)]; el.classList.add('flipping'); setTimeout(() => el.classList.remove('flipping'), 110); f++; }
-      else { clearInterval(iv); el.textContent = tgt[i] || ' '; res(); }
-    }, i * 32 + 28);
-  })));
-}
-
-function startFlapCycle(sub) {
-  const disp = document.getElementById('flap-display');
-  const msg = MSGS[flapIdx % MSGS.length];
-  buildFlap(disp, msg); animateFlap(disp, msg);
-  document.getElementById('board-sub').textContent = sub;
-  flapIdx++;
-  if (flapTimer) clearInterval(flapTimer);
-  flapTimer = setInterval(() => {
-    const m = MSGS[flapIdx % MSGS.length];
-    buildFlap(disp, m); animateFlap(disp, m); flapIdx++;
-  }, 5500);
-}
-
-// ═══════════════════════════════════════════════════
 // SVG ICONS per indicator
 // ═══════════════════════════════════════════════════
 const IND_ICONS = {
@@ -471,30 +365,20 @@ const IND_ICONS = {
 // INDICATORS
 // ═══════════════════════════════════════════════════
 const INDS = [
-  { key:'gel',      lbl:'Jours où il gèle dans l\'année',        unit:'j',  q:'Dans quelle ville le thermomètre passe-t-il le plus souvent sous zéro ?',               hint:'Compter les matins où l\'eau gèle dehors.' },
-  { key:'gel_n',    lbl:'Nuits de grand froid (< −5°C)',          unit:'n',  q:'Dans quelle ville les nuits sont-elles vraiment glaciales ?',                           hint:'Le genre de nuit où les canalisations risquent de geler.' },
-  { key:'pluie_j',  lbl:'Jours de pluie dans l\'année',          unit:'j',  q:'Dans quelle ville pleut-il le plus souvent ?',                                          hint:'Peu importe la quantité. On compte seulement les jours où il tombe de la pluie.' },
-  { key:'pluie_mm', lbl:'Quantité de pluie par an',              unit:'mm', q:'Dans quelle ville tombe-t-il le plus de pluie au total ?',                              hint:'En volume cette fois : certaines villes ont peu de jours de pluie mais des averses massives.' },
-  { key:'soleil',   lbl:'Heures de soleil par an',               unit:'h',  q:'Dans quelle ville le soleil brille-t-il le moins longtemps dans l\'année ?',            hint:'On cherche la ville la moins ensoleillée.' },
-  { key:'chaud',    lbl:'Jours de forte chaleur (> 30°C)',        unit:'j',  q:'Dans quelle ville les étés sont-ils les moins étouffants ?',                            hint:'On cherche la ville avec le moins de journées où il fait vraiment chaud.' },
-  { key:'amp',      lbl:'Écart entre la nuit et le jour (°C)',   unit:'°C', q:'Dans quelle ville la température change-t-elle le moins entre le matin et l\'après-midi ?', hint:'Un grand écart = climat continental. Un petit écart = climat plus stable, souvent côtier.' },
+  { key:'gel',      title:'Les jours de gel',       help:'Les matins où la température passe sous 0 °C.',                 unit:'j',  unitLabel:'jours par an',      story:'Il gèle plus souvent à' },
+  { key:'gel_n',    title:'Les nuits très froides', help:'Les nuits où il fait moins de -5 °C.',                          unit:'n',  unitLabel:'nuits par an',       story:'Les nuits très froides sont plus nombreuses à' },
+  { key:'pluie_j',  title:'Les jours de pluie',     help:'On compte les jours de pluie, même quand il pleut peu.',       unit:'j',  unitLabel:'jours par an',      story:'Il pleut plus souvent à' },
+  { key:'pluie_mm', title:'Toute la pluie tombée',  help:'La hauteur d’eau reçue en une année.',                         unit:'mm', unitLabel:'mm par an',         story:'Il tombe plus d’eau à' },
+  { key:'soleil',   title:'Les heures de soleil',   help:'Le temps pendant lequel le soleil brille vraiment.',          unit:'h',  unitLabel:'heures par an',     story:'Le soleil brille plus longtemps à' },
+  { key:'chaud',    title:'Les jours très chauds',  help:'Les journées où la température dépasse 30 °C.',               unit:'j',  unitLabel:'jours par an',      story:'Les journées très chaudes sont plus nombreuses à' },
+  { key:'amp',      title:'L’écart jour et nuit',   help:'La différence moyenne entre le matin et l’après-midi.',        unit:'°C', unitLabel:'°C de différence',  story:'La température varie davantage à' },
 ];
 
-const TRENDS = {
-  gel:      { tc:'cool', t:'Moins de gelées qu\'avant',      bc:'hot',  b:'Beaucoup moins de gelées' },
-  gel_n:    { tc:'cool', t:'Grands froids en recul',         bc:'hot',  b:'Grands froids en forte baisse' },
-  pluie_j:  { tc:'',     t:'Stable',                         bc:'cool', b:'Un peu moins de jours de pluie' },
-  pluie_mm: { tc:'',     t:'Stable',                         bc:'cool', b:'Légèrement plus sec' },
-  soleil:   { tc:'hot',  t:'Un peu plus de soleil',          bc:'hot',  b:'Nettement plus ensoleillé' },
-  chaud:    { tc:'hot',  t:'Étés plus chauds',               bc:'hot',  b:'Étés bien plus chauds' },
-  amp:      { tc:'',     t:'Stable',                         bc:'hot',  b:'Écarts jour/nuit qui s\'accentuent' },
-};
-
 const DECADE_META = {
-  gel:    { lbl:'Jours où il gèle', unit:'j/an' },
-  soleil: { lbl:'Heures de soleil', unit:'h/an' },
+  gel:    { lbl:'Jours où il gèle', unit:'jours/an' },
+  soleil: { lbl:'Heures de soleil', unit:'heures/an' },
   pluie:  { lbl:'Pluie tombée', unit:'mm/an' },
-  chaud:  { lbl:'Jours de grosse chaleur (> 30°C)', unit:'j/an' },
+  chaud:  { lbl:'Jours de grosse chaleur (> 30°C)', unit:'jours/an' },
 };
 
 // Three complete, equally long periods. Keeping identical 10-year windows makes
@@ -511,7 +395,7 @@ const DECADE_PERIODS = [
 const selected = { a: null, b: null };
 let debounceTimers = { a: null, b: null };
 let focusedIdx = { a: -1, b: -1 };
-let answers = {}, decadeData = null;
+let decadeData = null;
 
 // ═══════════════════════════════════════════════════
 // AUTOCOMPLETE
@@ -525,6 +409,7 @@ function onType(side) {
   const input = document.getElementById(`input-${side}`);
   const val = input.value.trim();
   selected[side] = null;
+  resetResults();
   input.classList.remove('selected', 'side-b');
   document.getElementById(`sel-display-${side}`).innerHTML = '';
   updateLaunchBtn();
@@ -577,6 +462,7 @@ function selectCommune(side, commune) {
 
 function clearSide(side) {
   selected[side]=null;
+  resetResults();
   const input=document.getElementById(`input-${side}`);
   input.value=''; input.classList.remove('selected','side-b');
   document.getElementById(`sel-display-${side}`).innerHTML='';
@@ -585,63 +471,32 @@ function clearSide(side) {
 
 function closeList(side) { document.getElementById(`list-${side}`).classList.add('hidden'); focusedIdx[side]=-1; }
 document.addEventListener('click', e => { ['a','b'].forEach(side=>{ if(!document.getElementById(`wrap-${side}`).contains(e.target)) closeList(side); }); });
-function updateLaunchBtn() { document.getElementById('launch-btn').disabled = !(selected.a && selected.b); }
+function resetResults() {
+  document.getElementById('dash-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.add('hidden');
+  setWeather('split');
+}
+function updateLaunchBtn() {
+  const btn=document.getElementById('launch-btn');
+  const ready=!!(selected.a&&selected.b);
+  btn.disabled=!ready;
+  if(!ready) btn.textContent='Comparer →';
+}
 
 // ═══════════════════════════════════════════════════
 // MATCH FLOW
 // ═══════════════════════════════════════════════════
 function startMatch() {
   if(!selected.a||!selected.b) return;
-  answers={};
-  ['board-section','prono-section'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
-  ['dash-section','loading-section','score-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));
-  startFlapCycle(`${selected.a.name} vs ${selected.b.name}. 30 ans de données réelles`);
-  buildPronoCards();
-  document.getElementById('prono-cnt').textContent='0';
-  document.getElementById('reveal-btn').disabled=true;
-  setWeather('none');
-  setTimeout(()=>window.scrollTo({top:200,behavior:'smooth'}),100);
-}
-
-function buildPronoCards() {
-  const wrap = document.getElementById('prono-cards');
-  wrap.innerHTML='';
-  INDS.forEach((ind,i)=>{
-    const c=document.createElement('div');
-    c.className='pcard'; c.id=`pc-${ind.key}`;
-    c.innerHTML=`<div class="pcard-head">
-        <div class="pcard-icon">${IND_ICONS[ind.key]||''}</div>
-        <div class="pcard-text">
-          <div class="pcard-q">${ind.q}</div>
-          <div class="pcard-hint">${ind.hint}</div>
-        </div>
-      </div>
-      <div class="pcard-opts">
-        <button class="popt" onclick="pick('${ind.key}','a',this)">${selected.a.name}</button>
-        <button class="popt" onclick="pick('${ind.key}','eq',this)">Les deux pareil</button>
-        <button class="popt" onclick="pick('${ind.key}','b',this)">${selected.b.name}</button>
-      </div>`;
-    wrap.appendChild(c);
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{ c.style.transitionDelay=`${i*55}ms`; c.classList.add('visible'); }));
-  });
-}
-
-function pick(key, choice, btn) {
-  const c=document.getElementById(`pc-${key}`);
-  c.querySelectorAll('.popt').forEach(b=>b.className='popt');
-  btn.classList.add(choice==='a'?'sel-a':choice==='b'?'sel-b':'sel-eq');
-  c.classList.add('done');
-  answers[key]=choice;
-  const cnt=Object.keys(answers).length;
-  document.getElementById('prono-cnt').textContent=cnt;
-  document.getElementById('reveal-btn').disabled=cnt<INDS.length;
-  // Light up weather icon for last answered
-  highlightWeatherIcon(key);
+  document.getElementById('dash-section').classList.add('hidden');
+  setWeather('split');
+  doReveal();
 }
 
 async function doReveal() {
-  if(flapTimer) clearInterval(flapTimer);
-  ['prono-section','board-section'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  const launch=document.getElementById('launch-btn');
+  launch.disabled=true;
+  launch.textContent='Calcul en cours…';
   document.getElementById('loading-section').classList.remove('hidden');
   document.getElementById('loading-txt').textContent=`Chargement ERA5 pour ${selected.a.name} et ${selected.b.name}…`;
   try {
@@ -654,9 +509,13 @@ async function doReveal() {
     decadeData={a:buildDecadeData(rawA),b:buildDecadeData(rawB)};
     document.getElementById('loading-section').classList.add('hidden');
     renderDash(dA,dB);
+    launch.textContent='Comparer à nouveau';
   } catch(e) {
     console.error('Erreur Open-Meteo',e);
     document.getElementById('loading-txt').innerHTML=`Impossible de charger les données ERA5. <button class="dec-tab on" onclick="doReveal()">Réessayer</button>`;
+    launch.textContent='Réessayer';
+  } finally {
+    launch.disabled=false;
   }
 }
 
@@ -697,95 +556,87 @@ function calcStats(d) {
   return{gel:Math.round(gel/Y),gel_n:Math.round(gn/Y),pluie_j:Math.round(pj/Y),pluie_mm:Math.round(pm/Y),soleil:Math.round(sol/Y),chaud:Math.round(hot/Y),amp:ac?+(as/ac).toFixed(1):0};
 }
 
-function getWinner(key,vA,vB) {
-  if(key==='soleil'||key==='chaud') return vA>vB?'a':vB>vA?'b':'eq';
-  return vA<vB?'a':vB<vA?'b':'eq';
+function formatMetricValue(v,unit) {
+  if(unit==='mm'||unit==='h') return Math.round(v).toLocaleString('fr');
+  if(unit==='°C') return v.toLocaleString('fr',{maximumFractionDigits:1});
+  return Math.round(v).toLocaleString('fr');
 }
-function fmtV(v,u){ return (u==='mm'||u==='h')?v.toLocaleString('fr')+u:v+u; }
+
+function metricDifference(ind,vA,vB) {
+  const diff=Math.abs(vA-vB);
+  const max=Math.max(Math.abs(vA),Math.abs(vB),1);
+  const value=formatMetricValue(diff,ind.unit);
+  const rounded=Math.round(diff);
+  const units={
+    j:rounded===1?'jour par an':'jours par an',
+    n:rounded===1?'nuit par an':'nuits par an',
+    h:rounded===1?'heure par an':'heures par an',
+    mm:'mm par an',
+    '°C':'°C',
+  };
+  const unit=units[ind.unit]||ind.unitLabel;
+  if(diff===0) return 'Exactement pareil dans les deux villes.';
+  if(diff/max<=.03) return `Presque pareil : seulement ${value} ${unit} d’écart.`;
+  return `Écart entre les villes : ${value} ${unit}.`;
+}
 
 function renderDash(dA,dB) {
-  let sA=0,sB=0,correct=0;
-  INDS.forEach(ind=>{
-    const w=getWinner(ind.key,dA[ind.key],dB[ind.key]);
-    if(w==='a')sA++; else if(w==='b')sB++;
-    if(answers[ind.key]===w) correct++;
-  });
   document.getElementById('d-name-a').textContent=selected.a.name;
   document.getElementById('d-name-b').textContent=selected.b.name;
   document.getElementById('d-dept-a').textContent=selected.a.dept;
   document.getElementById('d-dept-b').textContent=selected.b.dept;
-  document.getElementById('d-score-a').textContent=sA;
-  document.getElementById('d-score-b').textContent=sB;
   document.getElementById('dec-name-a').textContent=selected.a.name;
   document.getElementById('dec-name-b').textContent=selected.b.name;
-  document.getElementById('score-num').textContent=`${correct}/7`;
-  const pct=Math.round(correct/7*100);
-  const scoreMsgs=[
-    `La météo t'a bien eu ! Les données ont contredit la plupart de tes idées reçues. C'est exactement pour ça qu'on a construit ce truc.`,
-    `Pas mal ! Tu avais raison sur ${correct} points, mais les données t'ont surpris sur ${7-correct}. Les croyances météo sont tenaces.`,
-    `Belle intuition ! Tu connais bien le climat de ces deux villes. Quelques surprises quand même, regarde les détails ci-dessous.`,
-    `Impressionnant. Tu lis le temps comme un météorologue. Soit tu es d'ici, soit tu observes vraiment le ciel.`,
-  ];
-  document.getElementById('score-msg').textContent=scoreMsgs[pct<30?0:pct<55?1:pct<80?2:3];
-  ['score-section','dash-section'].forEach(id=>document.getElementById(id).classList.remove('hidden'));
+  document.getElementById('dash-section').classList.remove('hidden');
 
   const list=document.getElementById('ind-list'); list.innerHTML='';
   INDS.forEach((ind,i)=>{
     const vA=dA[ind.key],vB=dB[ind.key];
-    const tot=vA+vB||1;
-    const w=getWinner(ind.key,vA,vB);
-    const tr=TRENDS[ind.key]||{};
-    const pA=Math.round(vA/tot*100);
-    // Knot position: 50% = draw, drifts toward winner side
-    const knotPct = w==='eq' ? 50 : w==='a' ? Math.max(12, 50-(50-pA)*0.9) : Math.min(88, 50+(pA-50)*0.9);
-    const knotCls = w==='a'?'tug-knot-a':w==='b'?'tug-knot-b':'tug-knot-eq';
-    const subA = w==='a' ? 'gagne ce round' : '';
-    const subB = w==='b' ? 'gagne ce round' : '';
-    const row=document.createElement('div'); row.className='ind-row';
-    row.addEventListener('mouseenter',()=>highlightWeatherIcon(ind.key));
-    row.innerHTML=`
-      <div class="ind-row-label">
-        <div class="ind-icon">${IND_ICONS[ind.key]||''}</div>
-        <div class="ind-lbl">${ind.lbl}</div>
-        <span class="ind-trend-tag ${tr.bc||''}">${tr.b||''}</span>
+    const max=Math.max(vA,vB,1);
+    const scaleA=Math.max(.06,vA/max),scaleB=Math.max(.06,vB/max);
+    const close=Math.abs(vA-vB)/max<=.03;
+    const leader=vA>vB?'a':vB>vA?'b':'eq';
+    const leaderName=leader==='a'?selected.a.name:selected.b.name;
+    const leaderClass=leader==='a'?'s-a':'s-b';
+    const verdict=close
+      ? `Les deux villes sont <strong>presque pareilles</strong>.`
+      : `${ind.story} <strong class="${leaderClass}">${leaderName}</strong>.`;
+    const card=document.createElement('article');
+    card.className='metric-card';
+    card.addEventListener('mouseenter',()=>highlightWeatherIcon(ind.key));
+    card.setAttribute('aria-label',`${ind.title}. ${selected.a.name} : ${vA} ${ind.unitLabel}. ${selected.b.name} : ${vB} ${ind.unitLabel}.`);
+    card.innerHTML=`
+      <div class="metric-head">
+        <div class="metric-icon" aria-hidden="true">${IND_ICONS[ind.key]||''}</div>
+        <div><h3 class="metric-title">${ind.title}</h3><p class="metric-help">${ind.help}</p></div>
       </div>
-      <div class="tug-track">
-        <div class="tug-side tug-side-a">
-          <div class="tug-val tug-val-a">${fmtV(vA,ind.unit)}</div>
-          ${subA?`<div class="tug-sub tug-sub-a">${subA}</div>`:'<div class="tug-sub"> </div>'}
+      <div class="metric-verdict">${verdict}</div>
+      <div class="metric-columns" aria-hidden="true">
+        <div class="metric-city">
+          <div class="metric-number s-a">${formatMetricValue(vA,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+          <div class="metric-bar-zone"><div class="metric-bar metric-bar-a" style="--bar-scale:.06"></div></div>
+          <div class="metric-city-name s-a">${selected.a.name}</div>
         </div>
-        <div class="tug-rope-wrap">
-          <div class="tug-rope">
-            <div class="tug-fill-a" style="width:0%"></div>
-            <div class="tug-fill-b" style="width:0%"></div>
-          </div>
-          <div class="tug-center"></div>
-          <div class="tug-knot ${knotCls}" style="left:50%"></div>
+        <div class="metric-city">
+          <div class="metric-number s-b">${formatMetricValue(vB,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+          <div class="metric-bar-zone"><div class="metric-bar metric-bar-b" style="--bar-scale:.06"></div></div>
+          <div class="metric-city-name s-b">${selected.b.name}</div>
         </div>
-        <div class="tug-side tug-side-b">
-          <div class="tug-val tug-val-b">${fmtV(vB,ind.unit)}</div>
-          ${subB?`<div class="tug-sub tug-sub-b">${subB}</div>`:'<div class="tug-sub"> </div>'}
-        </div>
-      </div>`;
-    list.appendChild(row);
+      </div>
+      <div class="metric-difference">${metricDifference(ind,vA,vB)}</div>`;
+    list.appendChild(card);
     setTimeout(()=>{
-      row.classList.add('visible');
-      const fillA=row.querySelector('.tug-fill-a');
-      const fillB=row.querySelector('.tug-fill-b');
-      const knot=row.querySelector('.tug-knot');
-      if(fillA) fillA.style.width=pA+'%';
-      if(fillB) fillB.style.width=(100-pA)+'%';
-      setTimeout(()=>{ if(knot) knot.style.left=knotPct+'%'; },120);
+      card.classList.add('visible');
+      card.querySelector('.metric-bar-a').style.setProperty('--bar-scale',scaleA);
+      card.querySelector('.metric-bar-b').style.setProperty('--bar-scale',scaleB);
     },i*90+80);
   });
 
-  // Start with dominant weather based on season/data
-  const dominantKey=sA>=sB?INDS[0].key:INDS[2].key;
-  setTimeout(()=>highlightWeatherIcon(dominantKey),600);
+  setTimeout(()=>highlightWeatherIcon('gel'),600);
 
   document.querySelectorAll('.dec-tab').forEach((tab,i)=>tab.classList.toggle('on',i===0));
   renderDecTab('gel');
-  setTimeout(()=>window.scrollTo({top:document.getElementById('score-section').offsetTop-80,behavior:'smooth'}),150);
+  setTimeout(()=>document.getElementById('dash-section').scrollIntoView({behavior:'smooth',block:'start'}),150);
 }
 
 function setDecTab(btn,key) {
@@ -812,10 +663,13 @@ function renderDecTab(key) {
     const fv=v=>(key==='soleil'||key==='pluie')?Math.round(v).toLocaleString('fr'):Math.round(v);
     const row=document.createElement('div'); row.className='dec-row';
     row.innerHTML=`<div class="dec-period">${da.label}</div>
-      <div class="dec-vals">
-        <div class="dec-val"><div class="dec-v s-a">${fv(vA)} <small>${meta.unit}</small></div><div class="dec-d ${cA}">${dA}</div></div>
-        <div style="font-size:10px;color:var(--faint);">vs</div>
-        <div class="dec-val"><div class="dec-v s-b">${fv(vB)} <small>${meta.unit}</small></div><div class="dec-d ${cB}">${dB}</div></div>
+      <div class="dec-city-line">
+        <span class="dec-city-name s-a">${selected.a.name}</span>
+        <span class="dec-city-value"><span class="dec-v s-a">${fv(vA)} <small>${meta.unit}</small></span><span class="dec-d ${cA}">${dA}</span></span>
+      </div>
+      <div class="dec-city-line">
+        <span class="dec-city-name s-b">${selected.b.name}</span>
+        <span class="dec-city-value"><span class="dec-v s-b">${fv(vB)} <small>${meta.unit}</small></span><span class="dec-d ${cB}">${dB}</span></span>
       </div>`;
     wrap.appendChild(row);
   });
@@ -840,14 +694,13 @@ function decadeChangeClass(key,value,reference) {
 }
 
 function buildDecadeNote(key,nA,nB,vA,vB,unit) {
+  const labels={gel:'jours de gel',soleil:'heures de soleil',pluie:'mm de pluie',chaud:'jours très chauds'};
   const phrase=(name,values)=>{
     const start=values[0],end=values.at(-1),delta=Math.round(end-start);
-    if(delta===0) return `${name} reste stable`;
-    if(key==='chaud'&&start>0&&end>start) return `${name} passe de ${start} à ${end} ${unit} (×${(end/start).toFixed(1).replace('.',',')})`;
-    const verb=key==='gel'?(delta<0?'perd':'gagne'):(delta>0?'gagne':'perd');
-    return `${name} ${verb} ${Math.abs(delta)} ${unit}`;
+    if(delta===0) return `${name} reste stable.`;
+    return `${name} : ${Math.abs(delta)} ${labels[key]} ${delta>0?'en plus':'en moins'} par an.`;
   };
-  return `Entre la première et la dernière période : ${phrase(nA,vA)} ; ${phrase(nB,vB)}.`;
+  return `Du premier au dernier bloc, ${phrase(nA,vA)} ${phrase(nB,vB)}`;
 }
 </script>
 </body>
