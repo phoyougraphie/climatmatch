@@ -603,6 +603,7 @@ function resetResults() {
   decadeData=null;
   currentRaw=null;
   setWeather('split');
+  history.replaceState(null,'',buildMatchUrl());
 }
 function updateLaunchBtn() {
   const btn=document.getElementById('launch-btn');
@@ -638,7 +639,7 @@ function swapCities() {
     [currentStats.a,currentStats.b]=[currentStats.b,currentStats.a];
     [decadeData.a,decadeData.b]=[decadeData.b,decadeData.a];
     [currentRaw.a,currentRaw.b]=[currentRaw.b,currentRaw.a];
-    renderDash(currentStats.a,currentStats.b,false,false);
+    renderDash(currentStats.a,currentStats.b,false,true);
     syncMatchUrl();
   }
 }
@@ -764,19 +765,19 @@ function formatMetricValue(v,unit) {
   return Math.round(v).toLocaleString('fr');
 }
 
+function metricUnitLabel(ind,singular=false) {
+  if(ind.unit==='°C') return ind.unitLabel;
+  const period=SEASONS[currentSeason].period;
+  const nouns={j:singular?'jour':'jours',n:singular?'nuit':'nuits',h:singular?'heure':'heures',mm:'mm'};
+  return `${nouns[ind.unit]||ind.unit} par ${period}`;
+}
+
 function metricDifference(ind,vA,vB) {
   const diff=Math.abs(vA-vB);
   const max=Math.max(Math.abs(vA),Math.abs(vB),1);
   const value=formatMetricValue(diff,ind.unit);
   const rounded=Math.round(diff);
-  const units={
-    j:rounded===1?'jour par an':'jours par an',
-    n:rounded===1?'nuit par an':'nuits par an',
-    h:rounded===1?'heure par an':'heures par an',
-    mm:'mm par an',
-    '°C':'°C',
-  };
-  const unit=units[ind.unit]||ind.unitLabel;
+  const unit=metricUnitLabel(ind,rounded===1);
   if(diff===0) return 'Exactement pareil dans les deux villes.';
   if(diff/max<=.03) return `Presque pareil : seulement ${value} ${unit} d’écart.`;
   return `Écart entre les villes : ${value} ${unit}.`;
@@ -805,12 +806,12 @@ function createMetricCard(ind,dA,dB,animationIndex,animate=true) {
     <div class="metric-verdict">${metricVerdict(ind,vA,vB)}</div>
     <div class="metric-columns">
       <div class="metric-city">
-        <div class="metric-number s-a">${formatMetricValue(vA,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+        <div class="metric-number s-a">${formatMetricValue(vA,ind.unit)}<span class="metric-unit">${metricUnitLabel(ind)}</span></div>
         <div class="metric-bar-zone" aria-hidden="true"><div class="metric-bar metric-bar-a" style="--bar-scale:.06"></div></div>
         <div class="metric-city-name s-a">${selected.a.name}</div>
       </div>
       <div class="metric-city">
-        <div class="metric-number s-b">${formatMetricValue(vB,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+        <div class="metric-number s-b">${formatMetricValue(vB,ind.unit)}<span class="metric-unit">${metricUnitLabel(ind)}</span></div>
         <div class="metric-bar-zone" aria-hidden="true"><div class="metric-bar metric-bar-b" style="--bar-scale:.06"></div></div>
         <div class="metric-city-name s-b">${selected.b.name}</div>
       </div>
@@ -847,12 +848,18 @@ function renderSummary(dA,dB) {
   });
 }
 
-function renderDash(dA,dB,shouldScroll=true) {
+function renderDash(dA,dB,shouldScroll=true,resetDecade=true) {
   document.getElementById('dec-name-a').textContent=selected.a.name;
   document.getElementById('dec-name-b').textContent=selected.b.name;
   document.getElementById('dash-section').classList.remove('hidden');
   document.body.classList.add('has-results');
   updateCompactMatch();
+  document.getElementById('period-description').textContent=`${SEASONS[currentSeason].description} La colonne la plus haute montre la ville qui en a le plus.`;
+  document.querySelectorAll('.season-btn').forEach(btn=>{
+    const active=btn.dataset.season===currentSeason;
+    btn.classList.toggle('on',active);
+    btn.setAttribute('aria-pressed',String(active));
+  });
   renderSummary(dA,dB);
 
   const list=document.getElementById('ind-list');
@@ -874,9 +881,11 @@ function renderDash(dA,dB,shouldScroll=true) {
 
   setTimeout(()=>highlightWeatherIcon('gel'),600);
 
-  document.querySelectorAll('.dec-tab').forEach((tab,i)=>{tab.classList.toggle('on',i===0);tab.setAttribute('aria-pressed',String(i===0));});
-  renderDecTab('gel');
-  document.getElementById('results-announcer').textContent=`Résultats disponibles pour ${selected.a.name} et ${selected.b.name}.`;
+  if(resetDecade){
+    document.querySelectorAll('.dec-tab').forEach((tab,i)=>{tab.classList.toggle('on',i===0);tab.setAttribute('aria-pressed',String(i===0));});
+    renderDecTab('gel');
+  }
+  document.getElementById('results-announcer').textContent=`Résultats ${SEASONS[currentSeason].label.toLowerCase()} disponibles pour ${selected.a.name} et ${selected.b.name}.`;
   if(shouldScroll){
     const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(()=>{
@@ -885,6 +894,149 @@ function renderDash(dA,dB,shouldScroll=true) {
     },150);
   }
 }
+
+function setSeason(btn,season) {
+  if(!SEASONS[season]||season===currentSeason) return;
+  currentSeason=season;
+  document.querySelectorAll('.season-btn').forEach(item=>{
+    const active=item===btn;
+    item.classList.toggle('on',active);
+    item.setAttribute('aria-pressed',String(active));
+  });
+  if(currentRaw){
+    currentStats={a:statsForSeason(currentRaw.a,season),b:statsForSeason(currentRaw.b,season)};
+    renderDash(currentStats.a,currentStats.b,false,false);
+    syncMatchUrl();
+    document.getElementById('share-status').textContent='';
+  }
+}
+
+function buildMatchUrl() {
+  const url=new URL(window.location.href);
+  ['a','b','alat','alon','blat','blon','ad','bd','s'].forEach(key=>url.searchParams.delete(key));
+  if(!selected.a||!selected.b) return url;
+  url.searchParams.set('a',selected.a.name);
+  url.searchParams.set('alat',Number(selected.a.lat).toFixed(5));
+  url.searchParams.set('alon',Number(selected.a.lon).toFixed(5));
+  url.searchParams.set('ad',selected.a.dept||'');
+  url.searchParams.set('b',selected.b.name);
+  url.searchParams.set('blat',Number(selected.b.lat).toFixed(5));
+  url.searchParams.set('blon',Number(selected.b.lon).toFixed(5));
+  url.searchParams.set('bd',selected.b.dept||'');
+  url.searchParams.set('s',SEASONS[currentSeason].slug);
+  return url;
+}
+
+function syncMatchUrl() {
+  const url=buildMatchUrl();
+  history.replaceState(null,'',url);
+  return url.href;
+}
+
+function copyText(text) {
+  if(navigator.clipboard&&window.isSecureContext) return navigator.clipboard.writeText(text);
+  const area=document.createElement('textarea');
+  area.value=text; area.setAttribute('readonly',''); area.style.position='fixed'; area.style.opacity='0';
+  document.body.appendChild(area); area.select();
+  const copied=document.execCommand('copy'); area.remove();
+  return copied?Promise.resolve():Promise.reject(new Error('Copie impossible'));
+}
+
+async function shareMatch() {
+  if(!currentStats) return;
+  const url=syncMatchUrl();
+  const data={
+    title:`ClimatMatch : ${selected.a.name} contre ${selected.b.name}`,
+    text:`Le match climatique ${SEASONS[currentSeason].label.toLowerCase()} entre ${selected.a.name} et ${selected.b.name}.`,
+    url,
+  };
+  const status=document.getElementById('share-status');
+  try {
+    if(navigator.share){await navigator.share(data);status.textContent='Match partagé.';}
+    else {await copyText(url);status.textContent='Lien copié.';}
+  } catch(error) {
+    if(error.name!=='AbortError') status.textContent='Le partage n’a pas fonctionné. Réessaie.';
+  }
+}
+
+function slugify(text) {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+function topDifferences(dA,dB) {
+  return INDS.map(ind=>({ind,vA:dA[ind.key],vB:dB[ind.key],ratio:Math.abs(dA[ind.key]-dB[ind.key])/Math.max(Math.abs(dA[ind.key]),Math.abs(dB[ind.key]),1)}))
+    .sort((a,b)=>b.ratio-a.ratio).slice(0,3);
+}
+
+function fitCanvasText(ctx,text,maxWidth,startSize,minSize=28) {
+  let size=startSize;
+  while(size>minSize){ctx.font=`700 ${size}px Outfit, sans-serif`;if(ctx.measureText(text).width<=maxWidth) break;size-=2;}
+  return size;
+}
+
+async function exportShareCard() {
+  if(!currentStats) return;
+  if(document.fonts?.ready) await document.fonts.ready;
+  const canvas=document.createElement('canvas');
+  canvas.width=1080; canvas.height=1350;
+  const ctx=canvas.getContext('2d');
+  const bg=ctx.createLinearGradient(0,0,1080,1350);
+  bg.addColorStop(0,'#101820'); bg.addColorStop(.5,'#0E0D0B'); bg.addColorStop(1,'#25130D');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,1080,1350);
+  ctx.fillStyle='rgba(74,158,232,.13)';ctx.beginPath();ctx.arc(40,220,360,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(232,106,69,.13)';ctx.beginPath();ctx.arc(1050,1160,430,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle='#A19B94';ctx.font='500 25px "JetBrains Mono", monospace';ctx.fillText('CLIMATMATCH  •  ERA5 1994-2024',72,86);
+  ctx.fillStyle='#F0EDE6';ctx.font='400 62px "DM Serif Display", serif';ctx.fillText('Le vrai match climatique',72,175);
+  ctx.fillStyle='#A19B94';ctx.font='500 29px Outfit, sans-serif';ctx.fillText(SEASONS[currentSeason].description,72,225);
+
+  const nameA=selected.a.name,nameB=selected.b.name;
+  const sizeA=fitCanvasText(ctx,nameA,420,55),sizeB=fitCanvasText(ctx,nameB,420,55);
+  ctx.textAlign='left';ctx.fillStyle='#4A9EE8';ctx.font=`700 ${sizeA}px Outfit, sans-serif`;ctx.fillText(nameA,72,335);
+  ctx.textAlign='right';ctx.fillStyle='#E86A45';ctx.font=`700 ${sizeB}px Outfit, sans-serif`;ctx.fillText(nameB,1008,335);
+  ctx.textAlign='center';ctx.fillStyle='#A19B94';ctx.font='500 27px Outfit, sans-serif';ctx.fillText('CONTRE',540,330);
+
+  const rows=topDifferences(currentStats.a,currentStats.b);
+  rows.forEach(({ind,vA,vB},index)=>{
+    const y=430+index*245;
+    ctx.fillStyle='rgba(240,237,230,.07)';ctx.fillRect(72,y-54,936,196);
+    ctx.textAlign='center';ctx.fillStyle='#F0EDE6';ctx.font='700 31px Outfit, sans-serif';ctx.fillText(ind.title,540,y);
+    ctx.textAlign='left';ctx.fillStyle='#4A9EE8';ctx.font='700 49px "JetBrains Mono", monospace';ctx.fillText(formatMetricValue(vA,ind.unit),112,y+72);
+    ctx.textAlign='right';ctx.fillStyle='#E86A45';ctx.fillText(formatMetricValue(vB,ind.unit),968,y+72);
+    ctx.textAlign='center';ctx.fillStyle='#A19B94';ctx.font='600 23px Outfit, sans-serif';ctx.fillText(metricUnitLabel(ind),540,y+68);
+    ctx.font='500 21px Outfit, sans-serif';ctx.fillText(metricDifference(ind,vA,vB).replace('Écart entre les villes : ',''),540,y+112);
+  });
+
+  ctx.textAlign='left';ctx.fillStyle='#F0EDE6';ctx.font='400 40px "DM Serif Display", serif';ctx.fillText('Les données tranchent. Les idées reçues bougent.',72,1215);
+  ctx.fillStyle='#A19B94';ctx.font='500 23px Outfit, sans-serif';ctx.fillText('Données ERA5 via Open-Meteo  •  climatmatch',72,1270);
+
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob){document.getElementById('share-status').textContent='Impossible de créer l’image.';return;}
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=`climatmatch-${slugify(nameA)}-vs-${slugify(nameB)}-${SEASONS[currentSeason].slug}.png`;
+  link.hidden=true;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+  document.getElementById('share-status').textContent='Image créée.';
+}
+
+function restoreMatchFromUrl() {
+  const params=new URLSearchParams(location.search);
+  const city=(side)=>{
+    const name=params.get(side),lat=Number(params.get(`${side}lat`)),lon=Number(params.get(`${side}lon`));
+    const safeName=!!name&&name.length<=80&&/^[\p{L}\p{N} .,'’()\-]+$/u.test(name);
+    if(!safeName||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180) return null;
+    return {name,lat,lon,dept:params.get(`${side}d`)||''};
+  };
+  const a=city('a'),b=city('b');
+  if(!a||!b) return;
+  selected.a=a; selected.b=b;
+  currentSeason=Object.keys(SEASONS).find(key=>SEASONS[key].slug===params.get('s'))||'year';
+  renderSelectedInput('a');renderSelectedInput('b');updateCompactMatch();updateLaunchBtn();
+  startMatch();
+}
+
+window.addEventListener('DOMContentLoaded',restoreMatchFromUrl);
 
 function setDecTab(btn,key) {
   document.querySelectorAll('.dec-tab').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
