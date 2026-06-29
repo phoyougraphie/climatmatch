@@ -15,8 +15,13 @@
   --text:#F0EDE6;--muted:#A19B94;--faint:#514D47;
   --blue:#4A9EE8;--coral:#E86A45;--amber:#C8901A;--green:#3A9E6A;
 }
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;scroll-padding-top:138px;}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
+.skip-link{position:fixed;left:1rem;top:.5rem;z-index:500;padding:.75rem 1rem;background:var(--text);color:var(--bg);border-radius:10px;transform:translateY(-140%);transition:transform .2s;}
+.skip-link:focus{transform:none;}
+button,input,a{font:inherit;}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--text);outline-offset:3px;}
 
 /* ── CLIMATE ATMOSPHERE ── */
 #climate-fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;isolation:isolate;}
@@ -48,7 +53,7 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 @keyframes frost-breathe{to{transform:scale(1.018);opacity:.62;}}
 
 /* ── NAV ── */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(14,13,11,0.92);backdrop-filter:blur(16px);}
+.nav{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:.9rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(14,13,11,0.94);backdrop-filter:blur(16px);}
 .nav-logo{font-family:'DM Serif Display',serif;font-size:1.3rem;}
 .nav-logo em{font-style:italic;color:var(--muted);}
 .nav-pill{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);border:0.5px solid var(--border);padding:3px 10px;border-radius:20px;letter-spacing:0.05em;}
@@ -74,7 +79,7 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .hero-tag{font-size:10px;font-family:'JetBrains Mono',monospace;color:#D5D5D1;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem;}
 .hero-title{font-family:'DM Serif Display',serif;font-size:clamp(2.4rem,5.5vw,4rem);line-height:1.02;margin-bottom:.8rem;letter-spacing:-.02em;}
 .hero-title em{font-style:italic;color:#B8C8D2;display:inline-block;padding-bottom:.08em;}
-.hero-sub{font-size:15px;color:rgba(240,237,230,.72);max-width:470px;line-height:1.55;}
+.hero-sub{font-size:15px;color:rgba(240,237,230,.88);max-width:470px;line-height:1.55;}
 
 /* ── WEATHER ICON STRIP ── */
 .weather-strip{display:none;}
@@ -82,50 +87,77 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .w-icon.lit{opacity:1;transform:scale(1.15);}
 .w-icon svg{width:100%;height:100%;}
 
-/* ── SEARCH ── */
-.search-row{display:grid;grid-template-columns:1fr auto 1fr auto;gap:10px;align-items:start;margin-top:1rem;}
-@media(max-width:600px){.search-row{grid-template-columns:1fr 1fr;}.vs-text{display:none;}.launch-btn{grid-column:1/-1;}}
+/* ── STICKY COMPARATOR ── */
+.compare-dock{position:sticky;top:64px;z-index:150;padding:.65rem 1rem;background:rgba(14,13,11,.94);border-block:1px solid var(--border);backdrop-filter:blur(18px);}
+.compare-dock-inner{max-width:1040px;margin:0 auto;}
+.search-row{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) auto;gap:10px;align-items:end;}
+.city-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin:0 0 5px 2px;}
+.city-label-a{color:var(--blue);}
+.city-label-b{color:var(--coral);}
+.compact-match{display:none;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) auto;align-items:center;gap:8px;}
+.compact-city{min-width:0;display:flex;flex-direction:column;padding:.35rem .55rem;}
+.compact-city span{font-size:10px;font-weight:700;color:var(--muted);}
+.compact-city strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.compact-city-a strong{color:var(--blue);}
+.compact-city-b{text-align:right;}
+.compact-city-b strong{color:var(--coral);}
+.edit-cities-btn,.swap-btn{min-width:44px;min-height:44px;border:1px solid rgba(255,255,255,.36);border-radius:10px;background:var(--surface2);color:var(--text);cursor:pointer;}
+.swap-btn{font-size:21px;line-height:1;}
+.edit-cities-btn{padding:0 .9rem;font-size:13px;font-weight:700;}
+.swap-btn:hover,.edit-cities-btn:hover{background:#2A2823;}
+.swap-btn:active,.edit-cities-btn:active{transform:scale(.97);}
+.swap-btn:disabled{opacity:.35;cursor:not-allowed;}
 @media(max-width:700px){
   .hero{padding:1rem 1rem 2rem;}
   .climate-banner,.climate-banner-copy{min-height:360px;}
   .climate-banner-copy{padding:1.35rem;justify-content:flex-end;}
   .climate-banner img{object-position:55% center;}
   .hero-title{font-size:clamp(2.2rem,11vw,3.2rem);}
-  .hero-sub{font-size:13px;max-width:36ch;}
+  .hero-sub{font-size:14px;max-width:36ch;}
 }
 .city-wrap{position:relative;z-index:100;}
 .city-wrap.b-side{z-index:99;}
-.city-input{width:100%;padding:0.9rem 1rem;font-family:'Outfit',sans-serif;font-size:15px;font-weight:500;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
-.city-input:focus{border-color:var(--border-hi);box-shadow:0 0 0 3px rgba(74,158,232,0.08);}
+.city-input{width:100%;min-height:44px;padding:.72rem .9rem;font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;background:var(--surface);border:1px solid rgba(255,255,255,.36);border-radius:10px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;}
+.city-input:focus{border-color:var(--text);box-shadow:0 0 0 3px rgba(240,237,230,.12);}
 .city-input::placeholder{color:var(--muted);}
-.city-input.selected{border-color:rgba(74,158,232,0.4);background:rgba(74,158,232,0.04);}
-.city-input.selected.side-b{border-color:rgba(232,106,69,0.4);background:rgba(232,106,69,0.04);}
+.city-input.selected{border-color:var(--blue);background:rgba(74,158,232,0.04);}
+.city-input.selected.side-b{border-color:var(--coral);background:rgba(232,106,69,0.04);}
 .autocomplete-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface2);border:0.5px solid var(--border-hi);border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:300;}
-.autocomplete-item{padding:0.7rem 1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background 0.1s;}
+.autocomplete-item{min-height:48px;padding:.7rem 1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .1s;}
 .autocomplete-item:hover,.autocomplete-item.focused{background:rgba(255,255,255,0.05);}
-.ac-name{font-size:14px;font-weight:500;color:var(--text);}
-.ac-dept{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
-.ac-loading{padding:0.7rem 1rem;font-size:13px;color:var(--muted);font-style:italic;}
-.ac-empty{padding:0.7rem 1rem;font-size:13px;color:var(--muted);}
-.vs-text{font-size:12px;color:var(--faint);align-self:center;text-align:center;padding-top:0.9rem;}
-.launch-btn{padding:0.9rem 1.4rem;background:var(--text);color:var(--bg);border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;letter-spacing:-0.01em;}
+.ac-name{font-size:15px;font-weight:600;color:var(--text);}
+.ac-dept{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.ac-loading,.ac-empty{min-height:48px;padding:.8rem 1rem;font-size:14px;color:var(--muted);}
+.launch-btn{min-height:44px;padding:.72rem 1.25rem;background:var(--text);color:var(--bg);border:1px solid var(--text);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s,transform .2s;letter-spacing:-0.01em;}
 .launch-btn:hover{opacity:0.88;transform:translateY(-1px);}
 .launch-btn:active{transform:scale(0.97);}
 .launch-btn:disabled{opacity:0.3;cursor:not-allowed;}
-.launch-btn:focus-visible,.dec-tab:focus-visible{outline:2px solid var(--text);outline-offset:3px;}
-.selected-display{display:flex;align-items:center;gap:6px;margin-top:6px;min-height:20px;}
-.sel-badge{font-size:11px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:20px;}
-.sel-badge-a{background:rgba(74,158,232,0.12);color:var(--blue);}
-.sel-badge-b{background:rgba(232,106,69,0.12);color:var(--coral);}
-.sel-clear{font-size:11px;color:var(--muted);cursor:pointer;margin-left:auto;}
-.sel-clear:hover{color:var(--text);}
+@media(max-width:760px){
+  .compare-dock{padding:.55rem .65rem;}
+  .search-row{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);}
+  .launch-btn{grid-column:1/-1;}
+  body.has-results #expanded-search{display:none;}
+  body.has-results .compact-match{display:grid;}
+  .compact-match{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) auto;}
+  .edit-cities-btn{padding:0 .65rem;}
+}
+@media(max-width:430px){
+  .compact-city{padding-inline:.25rem;}
+  .compact-city span{font-size:9px;}
+  .compact-city strong{font-size:13px;}
+  .edit-cities-btn{font-size:12px;padding:0 .55rem;}
+}
 
 /* ── LOADING ── */
-.loading-section{max-width:860px;margin:0 auto;padding:2rem;position:relative;z-index:1;}
+.loading-section{max-width:1040px;margin:0 auto;padding:2rem;position:relative;z-index:1;}
 .loading-inner{display:flex;align-items:center;gap:16px;padding:1.5rem;}
-.spinner{width:16px;height:16px;border:1.5px solid var(--faint);border-top-color:var(--text);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:13px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.loading-mark{display:flex;align-items:flex-end;gap:4px;width:24px;height:24px;flex-shrink:0;}
+.loading-mark span{width:10px;height:24px;border-radius:5px 5px 2px 2px;transform-origin:bottom;}
+.loading-mark span:first-child{background:var(--blue);}
+.loading-mark span:last-child{background:var(--coral);animation-delay:.22s;}
+@media(prefers-reduced-motion:no-preference){.loading-mark span{animation:loading-bars .85s ease-in-out infinite alternate;}}
+@keyframes loading-bars{from{transform:scaleY(.35);opacity:.55}to{transform:scaleY(1);opacity:1}}
+.loading-txt{font-size:14px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
 
 /* ── DASHBOARD ── */
 .dash-section{max-width:860px;margin:0 auto;padding:0 2rem 4rem;position:relative;z-index:1;}
@@ -145,9 +177,9 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .dec-title{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1.25rem;}
 .dec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;}
 .dec-head .dec-title{margin-bottom:0;}
-.dec-source{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--faint);}
+.dec-source{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
 .dec-tabs{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
-.dec-tab{padding:4px 14px;border:0.5px solid var(--border);border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s;}
+.dec-tab{min-height:44px;padding:7px 14px;border:1px solid rgba(255,255,255,.36);border-radius:20px;font-size:13px;font-family:'JetBrains Mono',monospace;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;}
 .dec-tab.on{background:var(--text);color:var(--bg);border-color:var(--text);}
 .dec-row{display:flex;align-items:center;padding:0.65rem 0;border-bottom:0.5px solid var(--border);}
 .dec-row:last-child{border-bottom:none;}
@@ -166,70 +198,110 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .dash-section{max-width:1040px;padding:0 2rem 4rem;}
 .results-head{margin:1.25rem 0 1.5rem;}
 .results-head h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:400;line-height:1.05;margin-bottom:.55rem;}
-.results-head p{font-size:15px;color:var(--muted);max-width:560px;line-height:1.5;}
+.results-head p{font-size:16px;color:var(--muted);max-width:600px;line-height:1.5;}
+.results-tools{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1.25rem;}
+.season-switch{display:inline-grid;grid-template-columns:repeat(3,1fr);padding:4px;background:var(--surface);border:1px solid var(--border-hi);border-radius:12px;}
+.season-btn{min-height:44px;min-width:78px;padding:.65rem .9rem;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;transition:background .18s,color .18s;}
+.season-btn:hover{color:var(--text);}
+.season-btn.on{background:var(--text);color:var(--bg);}
+.share-tools{display:flex;align-items:center;gap:8px;}
+.share-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:.65rem .9rem;border:1px solid rgba(255,255,255,.36);border-radius:10px;background:var(--surface);color:var(--text);font-size:13px;font-weight:700;cursor:pointer;}
+.share-btn:hover{background:var(--surface2);}
+.share-btn svg{width:17px;height:17px;flex:none;}
+.share-status{min-height:1.3em;margin:-.75rem 0 1rem;text-align:right;font-size:12px;color:var(--muted);}
 .dash-cities{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:1.15rem 1.25rem;background:rgba(22,21,18,.78);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(12px);}
 .dash-city-role{font-size:11px;font-weight:700;margin-bottom:.25rem;}
 .dash-city-name{font-size:clamp(1.55rem,4vw,2.15rem);}
+.dash-city-dept{font-size:12px;}
 .dash-divider{padding:0;}
-.dash-vs{font-size:12px;color:var(--muted);}
+.dash-vs{font-size:13px;color:var(--muted);}
 
-.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.summary-panel{display:grid;grid-template-columns:minmax(190px,.75fr) 2fr;gap:1.25rem;align-items:center;margin:0 0 2rem;padding:1.25rem 1.35rem;background:linear-gradient(110deg,rgba(74,158,232,.09),rgba(22,21,18,.92) 45%,rgba(232,106,69,.08));border:1px solid var(--border-hi);border-radius:16px;}
+.summary-panel h3{font-family:'DM Serif Display',serif;font-size:1.55rem;font-weight:400;line-height:1.1;}
+.summary-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));list-style:none;}
+.summary-list li{min-width:0;padding:.25rem 1rem;border-left:1px solid var(--border-hi);}
+.summary-rank{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:.25rem;}
+.summary-text{font-size:13px;line-height:1.35;}
+.summary-text strong{display:block;font-size:15px;margin-bottom:.15rem;}
+
+.metric-groups{display:grid;gap:2rem;}
+.weather-group{padding:1.25rem;border:1px solid var(--border);border-radius:16px;background:rgba(22,21,18,.72);}
+.weather-group-cold{background:linear-gradient(135deg,rgba(74,158,232,.09),rgba(22,21,18,.84) 42%);}
+.weather-group-water{background:linear-gradient(135deg,rgba(66,124,166,.1),rgba(22,21,18,.84) 48%);}
+.weather-group-warm{background:linear-gradient(135deg,rgba(232,106,69,.09),rgba(22,21,18,.84) 48%);}
+.weather-group-stable{background:linear-gradient(135deg,rgba(240,237,230,.055),rgba(22,21,18,.84) 50%);}
+.weather-group-head{margin:0 0 1rem;}
+.weather-group-head h3{font-family:'DM Serif Display',serif;font-size:clamp(1.55rem,3.5vw,2rem);font-weight:400;line-height:1.1;margin-bottom:.25rem;}
+.weather-group-head p{font-size:14px;color:var(--muted);line-height:1.45;}
+.group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.weather-group-stable .group-grid{grid-template-columns:1fr;}
 .metric-card{background:rgba(22,21,18,.9);border:1px solid var(--border);border-radius:16px;padding:1.25rem;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease,border-color .2s ease;}
 .metric-card.visible{opacity:1;transform:none;}
 .metric-card:hover{border-color:var(--border-hi);}
-.metric-card:nth-child(7){grid-column:1/-1;}
 .metric-head{display:flex;align-items:flex-start;gap:.8rem;}
-.metric-icon{width:38px;height:38px;flex:0 0 38px;padding:8px;border-radius:12px;background:var(--surface2);}
+.metric-icon{width:42px;height:42px;flex:0 0 42px;padding:9px;border:1px solid var(--border-hi);border-radius:12px;background:var(--surface2);}
 .metric-icon svg{width:100%;height:100%;}
 .metric-title{font-size:18px;font-weight:700;line-height:1.2;margin-bottom:.25rem;}
-.metric-help{font-size:12px;color:var(--muted);line-height:1.4;max-width:36ch;}
-.metric-verdict{font-size:14px;line-height:1.4;margin-top:1rem;min-height:2.5em;}
+.metric-help{font-size:14px;color:var(--muted);line-height:1.45;max-width:40ch;}
+.metric-verdict{font-size:15px;line-height:1.45;margin-top:1rem;min-height:2.5em;}
 .metric-verdict strong{font-size:16px;}
 .metric-columns{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:end;margin-top:.85rem;}
 .metric-city{display:flex;flex-direction:column;align-items:center;min-width:0;}
 .metric-number{font-family:'JetBrains Mono',monospace;font-size:clamp(1.25rem,3vw,1.65rem);font-weight:700;line-height:1;text-align:center;}
-.metric-unit{display:block;font-family:'Outfit',sans-serif;font-size:10px;font-weight:500;color:var(--muted);margin-top:4px;}
+.metric-unit{display:block;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--muted);margin-top:5px;}
 .metric-bar-zone{height:96px;width:100%;display:flex;align-items:flex-end;justify-content:center;margin:.6rem 0 .55rem;}
 .metric-bar{width:min(64px,48%);height:100%;border-radius:12px 12px 4px 4px;transform:scaleY(var(--bar-scale));transform-origin:bottom;transition:transform .9s cubic-bezier(.16,1,.3,1);box-shadow:inset 0 1px 0 rgba(255,255,255,.25);}
 .metric-bar-a{background:linear-gradient(180deg,#73B9F5,var(--blue));}
 .metric-bar-b{background:linear-gradient(180deg,#F09273,var(--coral));}
-.metric-city-name{font-size:13px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.metric-difference{text-align:center;font-size:11px;color:var(--muted);margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border);}
+.metric-city-name{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.metric-difference{text-align:center;font-size:13px;color:var(--muted);margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--border);}
 
 .decade-section{margin-top:2.5rem;padding:1.35rem;border-radius:16px;}
 .dec-head{align-items:flex-end;}
 .dec-title{font-family:'DM Serif Display',serif;font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.1;text-transform:none;letter-spacing:-.01em;color:var(--text);margin-bottom:.35rem;}
-.dec-intro{font-size:13px;color:var(--muted);line-height:1.45;}
+.dec-intro{font-size:14px;color:var(--muted);line-height:1.45;}
 .dec-tabs{margin-bottom:1rem;}
-.dec-tab{padding:7px 12px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;}
+.dec-tab{padding:7px 13px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;}
 .dec-legend{display:none;}
 #dec-body{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
 .dec-row{display:block;padding:1rem;background:var(--surface2);border:1px solid var(--border);border-radius:12px;}
-.dec-period{font-size:11px;margin-bottom:.75rem;}
+.dec-period{font-size:12px;margin-bottom:.75rem;}
 .dec-city-line{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;padding:.35rem 0;}
-.dec-city-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dec-city-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dec-city-value{display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:nowrap;}
 .dec-v{font-size:15px;}
-.dec-d{font-size:9px;}
+.dec-d{font-size:11px;}
 .dec-note{grid-column:1/-1;font-size:13px;background:rgba(255,255,255,.025);border-radius:10px;padding:.85rem 1rem;font-style:normal;}
 
 @media(max-width:760px){
   .dash-section{padding:0 1rem 3rem;}
   .results-head{margin-top:.5rem;}
-  .metric-grid{grid-template-columns:1fr;}
-  .metric-card:nth-child(7){grid-column:auto;}
+  .results-tools{align-items:stretch;flex-direction:column;}
+  .season-switch{width:100%;}
+  .season-btn{min-width:0;padding-inline:.55rem;}
+  .share-tools{display:grid;grid-template-columns:1fr 1fr;}
+  .share-btn{width:100%;}
+  .share-status{text-align:left;margin-top:-.65rem;}
+  .summary-panel{grid-template-columns:1fr;gap:1rem;}
+  .summary-list{grid-template-columns:1fr;}
+  .summary-list li{padding:.75rem 0;border-left:0;border-top:1px solid var(--border-hi);}
+  .summary-list li:first-child{border-top:0;}
+  .weather-group{padding:1rem;}
+  .group-grid,.weather-group-stable .group-grid{grid-template-columns:1fr;}
   #dec-body{grid-template-columns:1fr;}
   .dec-head{align-items:flex-start;}
   .dec-source{margin-top:.25rem;}
 }
 @media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .loading-mark span{animation:none;}
   .metric-card,.metric-bar{transition:none;}
 }
 
 /* ── FOOTER ── */
 .footer{max-width:860px;margin:0 auto;padding:1.5rem 2rem 3rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;}
-.footer-left{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
-.footer-right a{color:var(--muted);text-decoration:none;border-bottom:0.5px solid var(--faint);font-size:11px;}
+.footer-left{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);}
+.footer-right a{display:inline-flex;align-items:center;min-height:44px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--faint);font-size:12px;}
 .footer-right a:hover{color:var(--text);}
 .hidden{display:none!important;}
 
@@ -237,16 +309,20 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 </head>
 <body data-climate="split">
 
+<a class="skip-link" href="#main-content">Aller au contenu</a>
+
 <div id="climate-fx" aria-hidden="true">
   <div class="frost-pane"></div>
   <div class="heat-pane"></div>
 </div>
 
-<nav class="nav">
+<nav class="nav" aria-label="Navigation principale">
   <div class="nav-logo">climat<em>match</em></div>
   <div class="nav-pill">ERA5 · 1994-2024</div>
 </nav>
 
+<main id="main-content" tabindex="-1">
+<div class="sr-only" id="results-announcer" aria-live="polite"></div>
 <div class="hero">
   <div class="climate-banner">
     <img src="meteo-hero.jpg" width="1672" height="941" fetchpriority="high" alt="Un champ sous un ciel partagé entre un front sombre et une forte lumière chaude">
@@ -259,26 +335,37 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
     </div>
   </div>
 
-  <div class="search-row">
-    <div class="city-wrap" id="wrap-a">
-      <input class="city-input" id="input-a" autocomplete="off" placeholder="Ville A - ex: Sarzeau" oninput="onType('a')" onkeydown="onKey(event,'a')">
-      <div class="autocomplete-list hidden" id="list-a"></div>
-      <div class="selected-display" id="sel-display-a"></div>
-    </div>
-    <div class="vs-text">vs</div>
-    <div class="city-wrap b-side" id="wrap-b">
-      <input class="city-input" id="input-b" autocomplete="off" placeholder="Ville B - ex: Meauzac" oninput="onType('b')" onkeydown="onKey(event,'b')">
-      <div class="autocomplete-list hidden" id="list-b"></div>
-      <div class="selected-display" id="sel-display-b"></div>
-    </div>
-    <button class="launch-btn" id="launch-btn" onclick="startMatch()" disabled>Comparer →</button>
-  </div>
 </div>
 
+<section class="compare-dock" id="compare-dock" aria-label="Choisir les villes à comparer">
+  <div class="compare-dock-inner">
+    <div class="search-row" id="expanded-search">
+      <div class="city-wrap" id="wrap-a">
+        <label class="city-label city-label-a" for="input-a">Ville bleue</label>
+        <input class="city-input" id="input-a" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-a" autocomplete="off" placeholder="Ex. Sarzeau" oninput="onType('a')" onkeydown="onKey(event,'a')">
+        <div class="autocomplete-list hidden" id="list-a" role="listbox" aria-label="Villes proposées pour la première ville"></div>
+      </div>
+      <button class="swap-btn" id="swap-btn" type="button" onclick="swapCities()" aria-label="Inverser les deux villes" disabled>⇄</button>
+      <div class="city-wrap b-side" id="wrap-b">
+        <label class="city-label city-label-b" for="input-b">Ville orange</label>
+        <input class="city-input" id="input-b" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-b" autocomplete="off" placeholder="Ex. Meauzac" oninput="onType('b')" onkeydown="onKey(event,'b')">
+        <div class="autocomplete-list hidden" id="list-b" role="listbox" aria-label="Villes proposées pour la deuxième ville"></div>
+      </div>
+      <button class="launch-btn" id="launch-btn" onclick="startMatch()" disabled>Comparer</button>
+    </div>
+    <div class="compact-match" id="compact-match">
+      <div class="compact-city compact-city-a"><span>Ville bleue</span><strong id="compact-name-a"></strong></div>
+      <button class="swap-btn" type="button" onclick="swapCities()" aria-label="Inverser les deux villes">⇄</button>
+      <div class="compact-city compact-city-b"><span>Ville orange</span><strong id="compact-name-b"></strong></div>
+      <button class="edit-cities-btn" type="button" onclick="editCities()">Changer</button>
+    </div>
+  </div>
+</section>
+
 <!-- LOADING -->
-<div id="loading-section" class="loading-section hidden">
+<div id="loading-section" class="loading-section hidden" role="status" aria-live="polite">
   <div class="loading-inner">
-    <div class="spinner"></div>
+    <div class="loading-mark" aria-hidden="true"><span></span><span></span></div>
     <div class="loading-txt" id="loading-txt">Connexion à Open-Meteo…</div>
   </div>
 </div>
@@ -286,25 +373,32 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 <!-- DASHBOARD -->
 <div id="dash-section" class="dash-section hidden">
   <div class="results-head">
-    <h2>Le climat, en un coup d’œil</h2>
-    <p>Pour chaque météo, la colonne la plus haute montre la ville qui en a le plus.</p>
+    <h2 id="results-title" tabindex="-1">Le climat, en un coup d’œil</h2>
+    <p id="period-description">Moyennes sur toute l’année. La colonne la plus haute montre la ville qui en a le plus.</p>
   </div>
-  <div class="dash-cities">
-    <div class="dash-city">
-      <div class="dash-city-role s-a">Ville bleue</div>
-      <div class="dash-city-name" id="d-name-a"></div>
-      <div class="dash-city-dept" id="d-dept-a"></div>
+  <div class="results-tools">
+    <div class="season-switch" role="group" aria-label="Période à comparer">
+      <button class="season-btn on" type="button" data-season="year" aria-pressed="true" onclick="setSeason(this,'year')">Année</button>
+      <button class="season-btn" type="button" data-season="summer" aria-pressed="false" onclick="setSeason(this,'summer')">Été</button>
+      <button class="season-btn" type="button" data-season="winter" aria-pressed="false" onclick="setSeason(this,'winter')">Hiver</button>
     </div>
-    <div class="dash-divider">
-      <div class="dash-vs">contre</div>
-    </div>
-    <div class="dash-city" style="text-align:right;">
-      <div class="dash-city-role s-b">Ville orange</div>
-      <div class="dash-city-name" id="d-name-b"></div>
-      <div class="dash-city-dept" id="d-dept-b"></div>
+    <div class="share-tools" aria-label="Partager ce match">
+      <button class="share-btn" type="button" onclick="shareMatch()">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>
+        Partager
+      </button>
+      <button class="share-btn" type="button" onclick="exportShareCard()">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 15-4-4L6 20"/></svg>
+        Créer une image
+      </button>
     </div>
   </div>
-  <div class="metric-grid" id="ind-list"></div>
+  <div class="share-status" id="share-status" role="status" aria-live="polite"></div>
+  <section class="summary-panel" aria-labelledby="summary-title">
+    <h3 id="summary-title">Les trois plus grandes différences</h3>
+    <ol class="summary-list" id="summary-list"></ol>
+  </section>
+  <div class="metric-groups" id="ind-list"></div>
   <div class="decade-section">
     <div class="dec-head">
       <div>
@@ -313,16 +407,17 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
       </div>
       <div class="dec-source">Moyennes annuelles · ERA5</div>
     </div>
-    <div class="dec-tabs">
-      <button class="dec-tab on" onclick="setDecTab(this,'gel')">Jours de gel</button>
-      <button class="dec-tab" onclick="setDecTab(this,'soleil')">Soleil</button>
-      <button class="dec-tab" onclick="setDecTab(this,'pluie')">Pluie</button>
-      <button class="dec-tab" onclick="setDecTab(this,'chaud')">Grande chaleur</button>
+    <div class="dec-tabs" aria-label="Choisir la donnée climatique à suivre">
+      <button class="dec-tab on" aria-pressed="true" onclick="setDecTab(this,'gel')">Jours de gel</button>
+      <button class="dec-tab" aria-pressed="false" onclick="setDecTab(this,'soleil')">Soleil</button>
+      <button class="dec-tab" aria-pressed="false" onclick="setDecTab(this,'pluie')">Pluie</button>
+      <button class="dec-tab" aria-pressed="false" onclick="setDecTab(this,'chaud')">Grande chaleur</button>
     </div>
     <div class="dec-legend"><span class="s-a" id="dec-name-a"></span><span class="s-b" id="dec-name-b"></span></div>
     <div id="dec-body"></div>
   </div>
 </div>
+</main>
 
 <footer class="footer">
   <div class="footer-left">climatmatch · données ERA5 via Open-Meteo / 1994-2024</div>
@@ -374,6 +469,13 @@ const INDS = [
   { key:'amp',      title:'L’écart jour et nuit',   help:'La différence moyenne entre le matin et l’après-midi.',        unit:'°C', unitLabel:'°C de différence',  story:'La température varie davantage à' },
 ];
 
+const METRIC_GROUPS = [
+  {id:'cold',title:'Quand il fait froid',help:'Gel du matin et nuits vraiment glaciales.',keys:['gel','gel_n']},
+  {id:'water',title:'Quand il pleut',help:'La fréquence des jours de pluie et toute l’eau tombée.',keys:['pluie_j','pluie_mm']},
+  {id:'warm',title:'Soleil et fortes chaleurs',help:'La lumière reçue et les journées qui dépassent 30 °C.',keys:['soleil','chaud']},
+  {id:'stable',title:'Entre le matin et l’après-midi',help:'Un seul chiffre pour voir si la température change beaucoup.',keys:['amp']},
+];
+
 const DECADE_META = {
   gel:    { lbl:'Jours où il gèle', unit:'jours/an' },
   soleil: { lbl:'Heures de soleil', unit:'heures/an' },
@@ -389,20 +491,29 @@ const DECADE_PERIODS = [
   {label:'2015-2024',start:'2015-01-01',end:'2024-12-31'},
 ];
 
+const SEASONS = {
+  year:   {label:'Année', slug:'annee', period:'an', description:'Moyennes sur toute l’année.'},
+  summer: {label:'Été', slug:'ete', period:'été', description:'Moyennes de juin à août.'},
+  winter: {label:'Hiver', slug:'hiver', period:'hiver', description:'Moyennes de décembre à février, sur des hivers complets.'},
+};
+
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
 const selected = { a: null, b: null };
 let debounceTimers = { a: null, b: null };
 let focusedIdx = { a: -1, b: -1 };
-let decadeData = null;
+let decadeData = null, currentStats = null, currentRaw = null;
+let currentSeason = 'year';
 
 // ═══════════════════════════════════════════════════
 // AUTOCOMPLETE
 // ═══════════════════════════════════════════════════
 async function searchCommunes(q) {
-  const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,codesPostaux,centre,codeDepartement&boost=population&limit=6`;
-  const r = await fetch(url); return r.json();
+  const url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=code,nom,codesPostaux,centre,codeDepartement&boost=population&limit=6`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(`API Géo HTTP ${r.status}`);
+  return r.json();
 }
 
 function onType(side) {
@@ -411,27 +522,31 @@ function onType(side) {
   selected[side] = null;
   resetResults();
   input.classList.remove('selected', 'side-b');
-  document.getElementById(`sel-display-${side}`).innerHTML = '';
   updateLaunchBtn();
   clearTimeout(debounceTimers[side]);
   if (val.length < 2) { closeList(side); return; }
   debounceTimers[side] = setTimeout(async () => {
     const list = document.getElementById(`list-${side}`);
-    list.innerHTML = '<div class="ac-loading">Recherche…</div>';
+    list.innerHTML = '<div class="ac-loading" role="status">Recherche…</div>';
     list.classList.remove('hidden');
+    input.setAttribute('aria-expanded','true');
     try { renderList(side, await searchCommunes(val)); }
-    catch(e) { list.innerHTML = '<div class="ac-empty">Erreur de connexion</div>'; }
+    catch(e) { list.innerHTML = '<div class="ac-empty" role="alert">Impossible de rechercher les villes.</div>'; }
   }, 220);
 }
 
 function renderList(side, communes) {
   const list = document.getElementById(`list-${side}`);
-  if (!communes.length) { list.innerHTML = '<div class="ac-empty">Aucun résultat</div>'; return; }
+  if (!communes.length) { list.innerHTML = '<div class="ac-empty" role="status">Aucune ville trouvée.</div>'; return; }
   list.innerHTML = ''; focusedIdx[side] = -1;
-  communes.forEach(c => {
+  communes.forEach((c,i) => {
     const cp = c.codesPostaux?.[0] || '', dept = c.codeDepartement || '';
     const item = document.createElement('div');
     item.className = 'autocomplete-item';
+    item.id=`option-${side}-${i}`;
+    item.setAttribute('role','option');
+    item.setAttribute('aria-selected','false');
+    item._commune=c;
     item.innerHTML = `<span class="ac-name">${c.nom}</span><span class="ac-dept">${cp} · ${dept}</span>`;
     item.addEventListener('mousedown', e => { e.preventDefault(); selectCommune(side, c); });
     list.appendChild(item);
@@ -439,24 +554,28 @@ function renderList(side, communes) {
 }
 
 function onKey(e, side) {
+  const input=document.getElementById(`input-${side}`);
   const list = document.getElementById(`list-${side}`);
   const items = [...list.querySelectorAll('.autocomplete-item')];
   if (!items.length) return;
-  if (e.key === 'ArrowDown') { e.preventDefault(); focusedIdx[side] = Math.min(focusedIdx[side]+1, items.length-1); items.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx[side])); }
-  else if (e.key === 'ArrowUp') { e.preventDefault(); focusedIdx[side] = Math.max(focusedIdx[side]-1,0); items.forEach((el,i)=>el.classList.toggle('focused',i===focusedIdx[side])); }
-  else if (e.key === 'Enter') { e.preventDefault(); if(focusedIdx[side]>=0) items[focusedIdx[side]].dispatchEvent(new Event('mousedown')); }
+  const focusOption=idx=>{
+    focusedIdx[side]=idx;
+    items.forEach((el,i)=>{const active=i===idx;el.classList.toggle('focused',active);el.setAttribute('aria-selected',String(active));});
+    input.setAttribute('aria-activedescendant',items[idx].id);
+  };
+  if (e.key === 'ArrowDown') { e.preventDefault(); focusOption(Math.min(focusedIdx[side]+1,items.length-1)); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); focusOption(Math.max(focusedIdx[side]-1,0)); }
+  else if (e.key === 'Enter') { e.preventDefault(); if(focusedIdx[side]>=0) selectCommune(side,items[focusedIdx[side]]._commune); }
   else if (e.key === 'Escape') closeList(side);
 }
 
 function selectCommune(side, commune) {
   const cp = commune.codesPostaux?.[0]||'', dept = commune.codeDepartement||'';
-  selected[side] = { name:commune.nom, lat:commune.centre?.coordinates?.[1], lon:commune.centre?.coordinates?.[0], dept:`${cp} · Dép. ${dept}` };
+  selected[side] = { name:commune.nom, code:commune.code||'', lat:commune.centre?.coordinates?.[1], lon:commune.centre?.coordinates?.[0], dept:`${cp} · Dép. ${dept}` };
   const input = document.getElementById(`input-${side}`);
   input.value = commune.nom; input.classList.add('selected');
   if(side==='b') input.classList.add('side-b');
   closeList(side);
-  const cls = side==='a'?'sel-badge-a':'sel-badge-b';
-  document.getElementById(`sel-display-${side}`).innerHTML = `<span class="sel-badge ${cls}">${cp} · ${dept}</span><span class="sel-clear" onclick="clearSide('${side}')">✕ changer</span>`;
   updateLaunchBtn();
 }
 
@@ -465,22 +584,63 @@ function clearSide(side) {
   resetResults();
   const input=document.getElementById(`input-${side}`);
   input.value=''; input.classList.remove('selected','side-b');
-  document.getElementById(`sel-display-${side}`).innerHTML='';
   updateLaunchBtn(); input.focus();
 }
 
-function closeList(side) { document.getElementById(`list-${side}`).classList.add('hidden'); focusedIdx[side]=-1; }
+function closeList(side) {
+  document.getElementById(`list-${side}`).classList.add('hidden');
+  const input=document.getElementById(`input-${side}`);
+  input.setAttribute('aria-expanded','false');
+  input.removeAttribute('aria-activedescendant');
+  focusedIdx[side]=-1;
+}
 document.addEventListener('click', e => { ['a','b'].forEach(side=>{ if(!document.getElementById(`wrap-${side}`).contains(e.target)) closeList(side); }); });
 function resetResults() {
   document.getElementById('dash-section').classList.add('hidden');
   document.getElementById('loading-section').classList.add('hidden');
+  document.body.classList.remove('has-results');
+  currentStats=null;
+  decadeData=null;
+  currentRaw=null;
   setWeather('split');
 }
 function updateLaunchBtn() {
   const btn=document.getElementById('launch-btn');
   const ready=!!(selected.a&&selected.b);
   btn.disabled=!ready;
+  document.getElementById('swap-btn').disabled=!ready;
   if(!ready) btn.textContent='Comparer →';
+}
+
+function renderSelectedInput(side) {
+  const input=document.getElementById(`input-${side}`);
+  const city=selected[side];
+  input.value=city?.name||'';
+  input.classList.toggle('selected',!!city);
+  input.classList.toggle('side-b',side==='b'&&!!city);
+}
+
+function updateCompactMatch() {
+  document.getElementById('compact-name-a').textContent=selected.a?.name||'';
+  document.getElementById('compact-name-b').textContent=selected.b?.name||'';
+}
+
+function editCities() {
+  document.body.classList.remove('has-results');
+  document.getElementById('input-a').focus();
+}
+
+function swapCities() {
+  if(!selected.a||!selected.b) return;
+  [selected.a,selected.b]=[selected.b,selected.a];
+  renderSelectedInput('a'); renderSelectedInput('b'); updateCompactMatch();
+  if(currentStats&&decadeData&&currentRaw){
+    [currentStats.a,currentStats.b]=[currentStats.b,currentStats.a];
+    [decadeData.a,decadeData.b]=[decadeData.b,decadeData.a];
+    [currentRaw.a,currentRaw.b]=[currentRaw.b,currentRaw.a];
+    renderDash(currentStats.a,currentStats.b,false,false);
+    syncMatchUrl();
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -505,11 +665,14 @@ async function doReveal() {
       fetchClimateData(selected.a.lat,selected.a.lon),
       fetchClimateData(selected.b.lat,selected.b.lon),
     ]);
-    const dA=calcStats(rawA), dB=calcStats(rawB);
+    currentRaw={a:rawA,b:rawB};
+    const dA=statsForSeason(rawA,currentSeason), dB=statsForSeason(rawB,currentSeason);
+    currentStats={a:dA,b:dB};
     decadeData={a:buildDecadeData(rawA),b:buildDecadeData(rawB)};
     document.getElementById('loading-section').classList.add('hidden');
     renderDash(dA,dB);
-    launch.textContent='Comparer à nouveau';
+    syncMatchUrl();
+    launch.textContent='Actualiser';
   } catch(e) {
     console.error('Erreur Open-Meteo',e);
     document.getElementById('loading-txt').innerHTML=`Impossible de charger les données ERA5. <button class="dec-tab on" onclick="doReveal()">Réessayer</button>`;
@@ -534,17 +697,56 @@ async function fetchClimateData(lat,lon) {
 
 function sliceDaily(d,start,end) {
   const indices=d.time.reduce((acc,date,i)=>{if(date>=start&&date<=end)acc.push(i);return acc;},[]);
+  return pickDaily(d,indices);
+}
+
+function pickDaily(d,indices) {
   return Object.fromEntries(Object.entries(d).map(([key,values])=>[key,indices.map(i=>values[i])]));
+}
+
+function seasonalDaily(d,season) {
+  if(season==='year') return {daily:d,periods:new Set((d.time||[]).map(date=>date.slice(0,4))).size};
+  if(season==='summer') {
+    const indices=[], years=new Set();
+    d.time.forEach((date,i)=>{
+      const year=date.slice(0,4),month=Number(date.slice(5,7));
+      if(month>=6&&month<=8){indices.push(i);years.add(year);}
+    });
+    return {daily:pickDaily(d,indices),periods:years.size};
+  }
+
+  const monthsByWinter=new Map();
+  d.time.forEach(date=>{
+    const year=Number(date.slice(0,4)),month=Number(date.slice(5,7));
+    if(![12,1,2].includes(month)) return;
+    const winterYear=month===12?year+1:year;
+    if(!monthsByWinter.has(winterYear)) monthsByWinter.set(winterYear,new Set());
+    monthsByWinter.get(winterYear).add(month);
+  });
+  const completeWinters=new Set([...monthsByWinter].filter(([,months])=>months.size===3).map(([year])=>year));
+  const indices=[];
+  d.time.forEach((date,i)=>{
+    const year=Number(date.slice(0,4)),month=Number(date.slice(5,7));
+    if(![12,1,2].includes(month)) return;
+    const winterYear=month===12?year+1:year;
+    if(completeWinters.has(winterYear)) indices.push(i);
+  });
+  return {daily:pickDaily(d,indices),periods:completeWinters.size};
+}
+
+function statsForSeason(d,season) {
+  const filtered=seasonalDaily(d,season);
+  return calcStats(filtered.daily,filtered.periods);
 }
 
 function buildDecadeData(d) {
   return DECADE_PERIODS.map(p=>({label:p.label,...calcStats(sliceDaily(d,p.start,p.end))}));
 }
 
-function calcStats(d) {
+function calcStats(d,periodCount) {
   const tm=d.temperature_2m_max||[],tn=d.temperature_2m_min||[],pr=d.precipitation_sum||[],su=d.sunshine_duration||[];
   const years=new Set((d.time||[]).map(date=>date.slice(0,4)));
-  const Y=Math.max(years.size,1);
+  const Y=Math.max(periodCount||years.size,1);
   let gel=0,gn=0,pj=0,pm=0,sol=0,hot=0,as=0,ac=0;
   for(let i=0;i<tn.length;i++){
     if(tn[i]!=null){if(tn[i]<0)gel++;if(tn[i]<-5)gn++;}
@@ -580,68 +782,113 @@ function metricDifference(ind,vA,vB) {
   return `Écart entre les villes : ${value} ${unit}.`;
 }
 
-function renderDash(dA,dB) {
-  document.getElementById('d-name-a').textContent=selected.a.name;
-  document.getElementById('d-name-b').textContent=selected.b.name;
-  document.getElementById('d-dept-a').textContent=selected.a.dept;
-  document.getElementById('d-dept-b').textContent=selected.b.dept;
+function metricVerdict(ind,vA,vB) {
+  const max=Math.max(vA,vB,1);
+  if(Math.abs(vA-vB)/max<=.03) return `Les deux villes sont <strong>presque pareilles</strong>.`;
+  const side=vA>vB?'a':'b';
+  const name=side==='a'?selected.a.name:selected.b.name;
+  return `${ind.story} <strong class="${side==='a'?'s-a':'s-b'}">${name}</strong>.`;
+}
+
+function createMetricCard(ind,dA,dB,animationIndex,animate=true) {
+  const vA=dA[ind.key],vB=dB[ind.key];
+  const max=Math.max(vA,vB,1);
+  const scaleA=Math.max(.06,vA/max),scaleB=Math.max(.06,vB/max);
+  const card=document.createElement('article');
+  card.className='metric-card';
+  card.addEventListener('mouseenter',()=>highlightWeatherIcon(ind.key));
+  card.innerHTML=`
+    <div class="metric-head">
+      <div class="metric-icon" aria-hidden="true">${IND_ICONS[ind.key]||''}</div>
+      <div><h4 class="metric-title">${ind.title}</h4><p class="metric-help">${ind.help}</p></div>
+    </div>
+    <div class="metric-verdict">${metricVerdict(ind,vA,vB)}</div>
+    <div class="metric-columns">
+      <div class="metric-city">
+        <div class="metric-number s-a">${formatMetricValue(vA,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+        <div class="metric-bar-zone" aria-hidden="true"><div class="metric-bar metric-bar-a" style="--bar-scale:.06"></div></div>
+        <div class="metric-city-name s-a">${selected.a.name}</div>
+      </div>
+      <div class="metric-city">
+        <div class="metric-number s-b">${formatMetricValue(vB,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
+        <div class="metric-bar-zone" aria-hidden="true"><div class="metric-bar metric-bar-b" style="--bar-scale:.06"></div></div>
+        <div class="metric-city-name s-b">${selected.b.name}</div>
+      </div>
+    </div>
+    <div class="metric-difference">${metricDifference(ind,vA,vB)}</div>`;
+  const reveal=()=>{
+    card.classList.add('visible');
+    card.querySelector('.metric-bar-a').style.setProperty('--bar-scale',scaleA);
+    card.querySelector('.metric-bar-b').style.setProperty('--bar-scale',scaleB);
+  };
+  if(animate) setTimeout(reveal,animationIndex*70+60);
+  else reveal();
+  return card;
+}
+
+function renderSummary(dA,dB) {
+  const ranked=INDS.map(ind=>{
+    const vA=dA[ind.key],vB=dB[ind.key];
+    return {ind,vA,vB,ratio:Math.abs(vA-vB)/Math.max(Math.abs(vA),Math.abs(vB),1)};
+  }).sort((a,b)=>b.ratio-a.ratio).slice(0,3);
+  const wrap=document.getElementById('summary-list');
+  wrap.innerHTML='';
+  ranked.forEach(({ind,vA,vB})=>{
+    const item=document.createElement('li');
+    const close=Math.abs(vA-vB)/Math.max(Math.abs(vA),Math.abs(vB),1)<=.03;
+    if(close){
+      item.innerHTML=`<div class="summary-text"><strong>${ind.title}</strong>Les deux villes sont presque pareilles.</div>`;
+    } else {
+      const leader=vA>vB?selected.a.name:selected.b.name;
+      const detail=metricDifference(ind,vA,vB).replace('Écart entre les villes : ','');
+      item.innerHTML=`<div class="summary-text"><strong>${ind.title}</strong>${leader} se distingue avec ${detail.charAt(0).toLowerCase()+detail.slice(1)}</div>`;
+    }
+    wrap.appendChild(item);
+  });
+}
+
+function renderDash(dA,dB,shouldScroll=true) {
   document.getElementById('dec-name-a').textContent=selected.a.name;
   document.getElementById('dec-name-b').textContent=selected.b.name;
   document.getElementById('dash-section').classList.remove('hidden');
+  document.body.classList.add('has-results');
+  updateCompactMatch();
+  renderSummary(dA,dB);
 
-  const list=document.getElementById('ind-list'); list.innerHTML='';
-  INDS.forEach((ind,i)=>{
-    const vA=dA[ind.key],vB=dB[ind.key];
-    const max=Math.max(vA,vB,1);
-    const scaleA=Math.max(.06,vA/max),scaleB=Math.max(.06,vB/max);
-    const close=Math.abs(vA-vB)/max<=.03;
-    const leader=vA>vB?'a':vB>vA?'b':'eq';
-    const leaderName=leader==='a'?selected.a.name:selected.b.name;
-    const leaderClass=leader==='a'?'s-a':'s-b';
-    const verdict=close
-      ? `Les deux villes sont <strong>presque pareilles</strong>.`
-      : `${ind.story} <strong class="${leaderClass}">${leaderName}</strong>.`;
-    const card=document.createElement('article');
-    card.className='metric-card';
-    card.addEventListener('mouseenter',()=>highlightWeatherIcon(ind.key));
-    card.setAttribute('aria-label',`${ind.title}. ${selected.a.name} : ${vA} ${ind.unitLabel}. ${selected.b.name} : ${vB} ${ind.unitLabel}.`);
-    card.innerHTML=`
-      <div class="metric-head">
-        <div class="metric-icon" aria-hidden="true">${IND_ICONS[ind.key]||''}</div>
-        <div><h3 class="metric-title">${ind.title}</h3><p class="metric-help">${ind.help}</p></div>
-      </div>
-      <div class="metric-verdict">${verdict}</div>
-      <div class="metric-columns" aria-hidden="true">
-        <div class="metric-city">
-          <div class="metric-number s-a">${formatMetricValue(vA,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
-          <div class="metric-bar-zone"><div class="metric-bar metric-bar-a" style="--bar-scale:.06"></div></div>
-          <div class="metric-city-name s-a">${selected.a.name}</div>
-        </div>
-        <div class="metric-city">
-          <div class="metric-number s-b">${formatMetricValue(vB,ind.unit)}<span class="metric-unit">${ind.unitLabel}</span></div>
-          <div class="metric-bar-zone"><div class="metric-bar metric-bar-b" style="--bar-scale:.06"></div></div>
-          <div class="metric-city-name s-b">${selected.b.name}</div>
-        </div>
-      </div>
-      <div class="metric-difference">${metricDifference(ind,vA,vB)}</div>`;
-    list.appendChild(card);
-    setTimeout(()=>{
-      card.classList.add('visible');
-      card.querySelector('.metric-bar-a').style.setProperty('--bar-scale',scaleA);
-      card.querySelector('.metric-bar-b').style.setProperty('--bar-scale',scaleB);
-    },i*90+80);
+  const list=document.getElementById('ind-list');
+  list.innerHTML='';
+  let animationIndex=0;
+  METRIC_GROUPS.forEach(group=>{
+    const section=document.createElement('section');
+    const titleId=`group-${group.id}-title`;
+    section.className=`weather-group weather-group-${group.id}`;
+    section.setAttribute('aria-labelledby',titleId);
+    section.innerHTML=`<div class="weather-group-head"><h3 id="${titleId}">${group.title}</h3><p>${group.help}</p></div><div class="group-grid"></div>`;
+    const grid=section.querySelector('.group-grid');
+    group.keys.forEach(key=>{
+      const ind=INDS.find(item=>item.key===key);
+      grid.appendChild(createMetricCard(ind,dA,dB,animationIndex++,shouldScroll));
+    });
+    list.appendChild(section);
   });
 
   setTimeout(()=>highlightWeatherIcon('gel'),600);
 
-  document.querySelectorAll('.dec-tab').forEach((tab,i)=>tab.classList.toggle('on',i===0));
+  document.querySelectorAll('.dec-tab').forEach((tab,i)=>{tab.classList.toggle('on',i===0);tab.setAttribute('aria-pressed',String(i===0));});
   renderDecTab('gel');
-  setTimeout(()=>document.getElementById('dash-section').scrollIntoView({behavior:'smooth',block:'start'}),150);
+  document.getElementById('results-announcer').textContent=`Résultats disponibles pour ${selected.a.name} et ${selected.b.name}.`;
+  if(shouldScroll){
+    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(()=>{
+      document.getElementById('dash-section').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+      document.getElementById('results-title').focus({preventScroll:true});
+    },150);
+  }
 }
 
 function setDecTab(btn,key) {
-  document.querySelectorAll('.dec-tab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on'); renderDecTab(key);
+  document.querySelectorAll('.dec-tab').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-pressed','false');});
+  btn.classList.add('on'); btn.setAttribute('aria-pressed','true'); renderDecTab(key);
   // sync weather icon with tab
   const tabWeather={gel:'cold',soleil:'warm',pluie:'neutral',chaud:'warm'};
   setWeather(tabWeather[key]||'none');
