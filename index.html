@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ClimatMatch - Données vs Croyances</title>
-<meta name="description" content="Compare le climat de deux villes françaises sur 30 ans. Données réelles ERA5.">
+<meta name="description" content="Compare le climat de deux villes ou explore le portrait climatique d’une commune, de 1994 aux projections 2050.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,7 +15,7 @@
   --text:#F0EDE6;--muted:#A19B94;--faint:#514D47;
   --blue:#4A9EE8;--coral:#E86A45;--amber:#C8901A;--green:#3A9E6A;
 }
-html{scroll-behavior:smooth;scroll-padding-top:138px;}
+html{scroll-behavior:smooth;scroll-padding-top:196px;}
 body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
 .skip-link{position:fixed;left:1rem;top:.5rem;z-index:500;padding:.75rem 1rem;background:var(--text);color:var(--bg);border-radius:10px;transform:translateY(-140%);transition:transform .2s;}
@@ -90,7 +90,13 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 /* ── STICKY COMPARATOR ── */
 .compare-dock{position:sticky;top:64px;z-index:150;padding:.65rem 1rem;background:rgba(14,13,11,.94);border-block:1px solid var(--border);backdrop-filter:blur(18px);}
 .compare-dock-inner{max-width:1040px;margin:0 auto;}
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:min(100%,430px);margin:0 auto .65rem;padding:4px;border:1px solid var(--border-hi);border-radius:12px;background:var(--surface);}
+.mode-btn{min-height:44px;padding:.6rem .85rem;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;}
+.mode-btn:hover{color:var(--text);}
+.mode-btn.on{background:var(--text);color:var(--bg);}
 .search-row{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) auto;gap:10px;align-items:end;}
+.profile-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;max-width:720px;margin:0 auto;}
+.profile-compact{display:none;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;}
 .city-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin:0 0 5px 2px;}
 .city-label-a{color:var(--blue);}
 .city-label-b{color:var(--coral);}
@@ -138,6 +144,8 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
   .launch-btn{grid-column:1/-1;}
   body.has-results #expanded-search{display:none;}
   body.has-results .compact-match{display:grid;}
+  body.has-profile-results #profile-search{display:none;}
+  body.has-profile-results .profile-compact{display:grid;}
   .compact-match{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) auto;}
   .edit-cities-btn{padding:0 .65rem;}
 }
@@ -273,6 +281,59 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 .metric-city-name{font-size:14px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .metric-difference{text-align:center;font-size:13px;color:var(--muted);margin-top:.8rem;padding-top:.75rem;border-top:1px solid var(--border);}
 
+/* ── COMMUNE CLIMATE PROFILE ── */
+.profile-section{max-width:1040px;margin:0 auto;padding:0 2rem 4rem;position:relative;z-index:1;}
+.profile-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1.5rem;align-items:end;margin:1.25rem 0 1.5rem;padding:1.4rem 1.5rem;border:1px solid var(--border-hi);border-radius:16px;background:linear-gradient(115deg,rgba(74,158,232,.1),rgba(22,21,18,.92) 52%,rgba(232,106,69,.09));}
+.profile-kicker{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.profile-name{font-family:'DM Serif Display',serif;font-size:clamp(2.35rem,7vw,4.6rem);font-weight:400;line-height:.95;}
+.profile-intro{max-width:640px;margin-top:.65rem;color:var(--muted);font-size:16px;line-height:1.5;}
+.profile-share{align-self:start;}
+.profile-season-wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;}
+.profile-season-note{font-size:13px;color:var(--muted);}
+.profile-chapter{margin-top:2.5rem;}
+.chapter-head{margin-bottom:1rem;}
+.chapter-head h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:400;line-height:1.04;margin-bottom:.35rem;}
+.chapter-head p{max-width:660px;color:var(--muted);font-size:15px;line-height:1.5;}
+.profile-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.profile-stat{min-height:155px;padding:1.15rem;border:1px solid var(--border);border-radius:14px;background:rgba(22,21,18,.88);display:flex;flex-direction:column;justify-content:space-between;}
+.profile-stat-label{font-size:13px;color:var(--muted);line-height:1.35;}
+.profile-stat-value{font-family:'JetBrains Mono',monospace;font-size:clamp(1.8rem,4vw,2.55rem);font-weight:700;line-height:1;}
+.profile-stat-detail{font-size:12px;color:var(--muted);margin-top:.45rem;}
+.profile-stat-hot .profile-stat-value{color:#F09273;}
+.profile-stat-cold .profile-stat-value{color:#A0C8F0;}
+.profile-chart-card{padding:1.25rem;border:1px solid var(--border);border-radius:16px;background:rgba(22,21,18,.84);overflow:hidden;}
+.chart-title{font-size:17px;font-weight:700;margin-bottom:.25rem;}
+.chart-help{font-size:13px;color:var(--muted);line-height:1.45;margin-bottom:1rem;}
+.climate-chart{display:block;width:100%;height:auto;min-height:300px;overflow:visible;}
+.chart-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.75rem;color:var(--muted);font-size:12px;}
+.legend-key{display:inline-flex;align-items:center;gap:6px;}
+.legend-swatch{width:18px;height:3px;border-radius:2px;background:var(--text);}
+.legend-swatch-rain{height:8px;background:rgba(74,158,232,.55);}
+.evolution-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:12px;}
+.warming-stripes{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;height:92px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.stripe{min-width:0;}
+.stripe-years{display:flex;justify-content:space-between;margin-top:.5rem;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;}
+.trend-number{font-family:'JetBrains Mono',monospace;font-size:clamp(2.4rem,5vw,3.6rem);font-weight:700;color:#F09273;line-height:1;margin:.75rem 0;}
+.trend-copy{font-size:14px;line-height:1.5;color:var(--muted);}
+.annual-chart{display:block;width:100%;height:auto;min-height:260px;}
+.change-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px;}
+.change-card{padding:1rem;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.change-card strong{display:block;font-family:'JetBrains Mono',monospace;font-size:1.45rem;margin:.5rem 0;}
+.change-card span{font-size:12px;color:var(--muted);line-height:1.4;}
+.future-panel{padding:1.35rem;border:1px solid var(--border-hi);border-radius:16px;background:linear-gradient(120deg,rgba(74,158,232,.08),rgba(22,21,18,.9) 42%,rgba(232,106,69,.1));}
+.future-loading{display:flex;align-items:center;gap:12px;min-height:120px;color:var(--muted);font-size:14px;}
+.future-hero{display:grid;grid-template-columns:.8fr 1.2fr;gap:1.5rem;align-items:center;}
+.future-delta{font-family:'JetBrains Mono',monospace;font-size:clamp(3rem,8vw,5.5rem);font-weight:700;line-height:.95;color:#F09273;}
+.future-range{font-size:13px;color:var(--muted);margin-top:.55rem;line-height:1.45;}
+.ensemble-chart{display:block;width:100%;height:auto;min-height:250px;}
+.future-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:1rem;}
+.future-metric{padding:1rem;border:1px solid var(--border);border-radius:12px;background:rgba(14,13,11,.48);}
+.future-metric-label{font-size:12px;color:var(--muted);line-height:1.35;}
+.future-metric strong{display:block;font-family:'JetBrains Mono',monospace;font-size:1.45rem;margin:.45rem 0;}
+.future-metric small{font-size:11px;color:var(--muted);line-height:1.35;}
+.method-note{margin-top:1rem;padding:1rem;border-left:3px solid var(--amber);background:rgba(200,144,26,.07);color:var(--muted);font-size:13px;line-height:1.55;}
+.method-note strong{color:var(--text);}
+
 .decade-section{margin-top:2.5rem;padding:1.35rem;border-radius:16px;}
 .dec-head{align-items:flex-end;}
 .dec-title{font-family:'DM Serif Display',serif;font-size:clamp(1.65rem,4vw,2.25rem);line-height:1.1;text-transform:none;letter-spacing:-.01em;color:var(--text);margin-bottom:.35rem;}
@@ -292,6 +353,14 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 
 @media(max-width:760px){
   .dash-section{padding:0 1rem 3rem;}
+  .profile-section{padding:0 1rem 3rem;}
+  .profile-hero{grid-template-columns:1fr;padding:1.15rem;}
+  .profile-share{width:100%;}
+  .profile-season-wrap{align-items:stretch;flex-direction:column;}
+  .profile-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .evolution-grid,.future-hero{grid-template-columns:1fr;}
+  .change-cards,.future-metrics{grid-template-columns:1fr;}
+  .climate-chart{min-height:240px;}
   .results-head{margin-top:.5rem;}
   .results-tools{align-items:stretch;flex-direction:column;}
   .season-switch{width:100%;}
@@ -311,6 +380,11 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
   #dec-body{grid-template-columns:1fr;}
   .dec-head{align-items:flex-start;}
   .dec-source{margin-top:.25rem;}
+}
+@media(max-width:430px){
+  .mode-btn{font-size:13px;padding-inline:.45rem;}
+  .profile-stat-grid{grid-template-columns:1fr 1fr;}
+  .profile-stat{min-height:140px;padding:1rem;}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto;}
@@ -350,8 +424,8 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
     <div class="banner-heat" aria-hidden="true"></div>
     <div class="climate-banner-copy">
       <div class="hero-tag">données contre croyances</div>
-      <div class="hero-title">Le vrai match entre <em>deux villes</em></div>
-      <div class="hero-sub">Choisis deux villes. Les chiffres montrent tout de suite où il gèle, pleut ou chauffe le plus.</div>
+      <div class="hero-title">Le vrai climat de <em>vos villes</em></div>
+      <div class="hero-sub">Compare deux communes ou explore trente ans de climat local, puis découvre ce qui pourrait changer.</div>
     </div>
   </div>
 
@@ -359,6 +433,10 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
 
 <section class="compare-dock" id="compare-dock" aria-label="Choisir les villes à comparer">
   <div class="compare-dock-inner">
+    <div class="mode-switch" role="group" aria-label="Mode d’exploration">
+      <button class="mode-btn on" id="mode-compare" type="button" aria-pressed="true" onclick="setAppMode('compare')">Comparer deux villes</button>
+      <button class="mode-btn" id="mode-profile" type="button" aria-pressed="false" onclick="setAppMode('profile')">Explorer une commune</button>
+    </div>
     <div class="search-row" id="expanded-search">
       <div class="city-wrap" id="wrap-a">
         <label class="city-label city-label-a" for="input-a">Ville bleue</label>
@@ -378,6 +456,18 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
       <button class="swap-btn" type="button" onclick="swapCities()" aria-label="Inverser les deux villes">⇄</button>
       <div class="compact-city compact-city-b"><span>Ville orange</span><strong id="compact-name-b"></strong></div>
       <button class="edit-cities-btn" type="button" onclick="editCities()">Changer</button>
+    </div>
+    <div class="profile-search-row hidden" id="profile-search">
+      <div class="city-wrap" id="wrap-profile">
+        <label class="city-label" for="input-profile">Commune à explorer</label>
+        <input class="city-input" id="input-profile" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-profile" autocomplete="off" placeholder="Ex. Vannes" oninput="onType('profile')" onkeydown="onKey(event,'profile')">
+        <div class="autocomplete-list hidden" id="list-profile" role="listbox" aria-label="Communes proposées"></div>
+      </div>
+      <button class="launch-btn" id="profile-launch-btn" type="button" onclick="startProfile()" disabled>Explorer</button>
+    </div>
+    <div class="profile-compact" id="profile-compact">
+      <div class="compact-city compact-city-a"><span>Portrait climat</span><strong id="compact-name-profile"></strong></div>
+      <button class="edit-cities-btn" type="button" onclick="editProfileCity()">Changer</button>
     </div>
   </div>
 </section>
@@ -445,10 +535,96 @@ body[data-climate="neutral"] .frost-pane,body[data-climate="neutral"] .heat-pane
     <div id="dec-body"></div>
   </div>
 </div>
+
+<!-- COMMUNE PROFILE -->
+<div id="profile-section" class="profile-section hidden">
+  <header class="profile-hero">
+    <div>
+      <div class="profile-kicker">Portrait climat · ERA5 1994-2024</div>
+      <h1 class="profile-name" id="profile-name" tabindex="-1"></h1>
+      <p class="profile-intro" id="profile-intro"></p>
+    </div>
+    <button class="share-btn profile-share" type="button" onclick="shareProfile()">Partager ce portrait</button>
+  </header>
+
+  <div class="profile-season-wrap">
+    <div class="season-switch" role="group" aria-label="Période du portrait climatique">
+      <button class="season-btn profile-season-btn on" type="button" data-season="year" aria-pressed="true" onclick="setProfileSeason(this,'year')">Année</button>
+      <button class="season-btn profile-season-btn" type="button" data-season="summer" aria-pressed="false" onclick="setProfileSeason(this,'summer')">Été</button>
+      <button class="season-btn profile-season-btn" type="button" data-season="winter" aria-pressed="false" onclick="setProfileSeason(this,'winter')">Hiver</button>
+    </div>
+    <div class="profile-season-note" id="profile-season-note"></div>
+  </div>
+
+  <section class="profile-chapter" aria-labelledby="profile-now-title">
+    <div class="chapter-head">
+      <h2 id="profile-now-title">Aujourd’hui, en un coup d’œil</h2>
+      <p>Les chiffres les plus utiles pour sentir le climat de la commune.</p>
+    </div>
+    <div class="profile-stat-grid" id="profile-stats"></div>
+  </section>
+
+  <section class="profile-chapter" aria-labelledby="profile-seasons-title">
+    <div class="chapter-head">
+      <h2 id="profile-seasons-title">Le rythme des saisons</h2>
+      <p>Température et pluie mois après mois, calculées sur trente ans.</p>
+    </div>
+    <div class="profile-chart-card">
+      <div class="chart-title">Une année typique</div>
+      <div class="chart-help">La ligne montre la température moyenne. Les barres montrent la pluie reçue.</div>
+      <div id="monthly-chart"></div>
+      <div class="chart-legend" aria-hidden="true">
+        <span class="legend-key"><span class="legend-swatch"></span>Température</span>
+        <span class="legend-key"><span class="legend-swatch legend-swatch-rain"></span>Pluie</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="profile-chapter" aria-labelledby="profile-change-title">
+    <div class="chapter-head">
+      <h2 id="profile-change-title">Ce qui a déjà changé</h2>
+      <p>Une année seule peut tromper. La tendance devient visible quand on regarde trente ans ensemble.</p>
+    </div>
+    <div class="evolution-grid">
+      <div class="profile-chart-card">
+        <div class="chart-title">Les années, de la plus fraîche à la plus chaude</div>
+        <div class="chart-help">Chaque bande représente une année, dans l’ordre chronologique.</div>
+        <div class="warming-stripes" id="warming-stripes" role="img"></div>
+        <div class="stripe-years"><span id="stripe-year-start">1994</span><span id="stripe-year-end">2024</span></div>
+      </div>
+      <div class="profile-chart-card">
+        <div class="chart-title">Tendance locale</div>
+        <div class="trend-number" id="profile-trend"></div>
+        <div class="trend-copy" id="profile-trend-copy"></div>
+      </div>
+    </div>
+    <div class="profile-chart-card" style="margin-top:12px">
+      <div class="chart-title" id="annual-chart-title">Température moyenne de chaque année</div>
+      <div class="chart-help">La ligne fine suit les années. La ligne droite montre la tendance générale.</div>
+      <div id="annual-chart"></div>
+    </div>
+    <div class="change-cards" id="change-cards"></div>
+  </section>
+
+  <section class="profile-chapter" aria-labelledby="profile-future-title">
+    <div class="chapter-head">
+      <h2 id="profile-future-title">Vers 2050</h2>
+      <p>Sept modèles climatiques donnent plusieurs futurs possibles. Leur accord est plus utile qu’une valeur unique.</p>
+    </div>
+    <div class="future-panel" id="future-panel">
+      <div class="future-loading" id="future-loading">
+        <div class="loading-mark" aria-hidden="true"><span></span><span></span></div>
+        Calcul des projections CMIP6…
+      </div>
+      <div id="future-content" class="hidden"></div>
+    </div>
+    <div class="method-note"><strong>À retenir :</strong> ce ne sont pas des prévisions météo pour 2050. Ce sont des projections issues de sept modèles CMIP6 utilisés dans la recherche évaluée par le GIEC, corrigées à une résolution d’environ 10 km. Elles suivent une trajectoire de fortes émissions proche de RCP8.5.</div>
+  </section>
+</div>
 </main>
 
 <footer class="footer">
-  <div class="footer-left">climatmatch · données ERA5 via Open-Meteo / 1994-2024</div>
+  <div class="footer-left">climatmatch · ERA5 et CMIP6 via Open-Meteo</div>
   <div class="footer-right"><a href="https://open-meteo.com" target="_blank" rel="noopener">open-meteo.com</a> · <a href="https://geo.api.gouv.fr" target="_blank" rel="noopener">api géo</a></div>
 </footer>
 
@@ -532,11 +708,14 @@ const SEASONS = {
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-const selected = { a: null, b: null };
-let debounceTimers = { a: null, b: null };
-let focusedIdx = { a: -1, b: -1 };
+const selected = { a: null, b: null, profile:null };
+let debounceTimers = { a: null, b: null, profile:null };
+let focusedIdx = { a: -1, b: -1, profile:-1 };
 let decadeData = null, currentStats = null, currentRaw = null;
 let currentSeason = 'year';
+let appMode='compare',profileSeason='year',profileRaw=null,profileData=null,projectionRaw=null;
+
+const CLIMATE_MODELS=['CMCC_CM2_VHR4','FGOALS_f3_H','HiRAM_SIT_HR','MRI_AGCM3_2_S','EC_Earth3P_HR','MPI_ESM1_2_XR','NICAM16_8S'];
 
 // ═══════════════════════════════════════════════════
 // AUTOCOMPLETE
@@ -552,7 +731,7 @@ function onType(side) {
   const input = document.getElementById(`input-${side}`);
   const val = input.value.trim();
   selected[side] = null;
-  resetResults();
+  if(side==='profile') resetProfileResults(); else resetResults();
   input.classList.remove('selected', 'side-b');
   updateLaunchBtn();
   clearTimeout(debounceTimers[side]);
@@ -613,7 +792,7 @@ function selectCommune(side, commune) {
 
 function clearSide(side) {
   selected[side]=null;
-  resetResults();
+  if(side==='profile')resetProfileResults();else resetResults();
   const input=document.getElementById(`input-${side}`);
   input.value=''; input.classList.remove('selected','side-b');
   updateLaunchBtn(); input.focus();
@@ -626,7 +805,32 @@ function closeList(side) {
   input.removeAttribute('aria-activedescendant');
   focusedIdx[side]=-1;
 }
-document.addEventListener('click', e => { ['a','b'].forEach(side=>{ if(!document.getElementById(`wrap-${side}`).contains(e.target)) closeList(side); }); });
+document.addEventListener('click', e => { ['a','b','profile'].forEach(side=>{ if(!document.getElementById(`wrap-${side}`).contains(e.target)) closeList(side); }); });
+
+function setAppMode(mode,keepUrl=false) {
+  if(!['compare','profile'].includes(mode)) return;
+  appMode=mode;
+  const compare=mode==='compare';
+  document.getElementById('mode-compare').classList.toggle('on',compare);
+  document.getElementById('mode-compare').setAttribute('aria-pressed',String(compare));
+  document.getElementById('mode-profile').classList.toggle('on',!compare);
+  document.getElementById('mode-profile').setAttribute('aria-pressed',String(!compare));
+  document.getElementById('expanded-search').classList.toggle('hidden',!compare);
+  document.getElementById('compact-match').classList.toggle('hidden',!compare);
+  document.getElementById('profile-search').classList.toggle('hidden',compare);
+  document.getElementById('profile-compact').classList.toggle('hidden',compare);
+  document.getElementById('dash-section').classList.toggle('hidden',!compare||!currentStats);
+  document.getElementById('profile-section').classList.toggle('hidden',compare||!profileData);
+  document.body.classList.toggle('has-results',compare&&!!currentStats);
+  document.body.classList.toggle('has-profile-results',!compare&&!!profileData);
+  document.getElementById('compare-dock').setAttribute('aria-label',compare?'Choisir les villes à comparer':'Choisir une commune à explorer');
+  updateLaunchBtn();
+  if(!keepUrl){
+    const target=compare&&currentStats?buildMatchUrl():!compare&&profileData?buildProfileUrl():location.pathname;
+    history.replaceState(null,'',target);
+  }
+}
+
 function resetResults() {
   document.getElementById('dash-section').classList.add('hidden');
   document.getElementById('loading-section').classList.add('hidden');
@@ -635,7 +839,15 @@ function resetResults() {
   decadeData=null;
   currentRaw=null;
   setWeather('split');
-  history.replaceState(null,'',buildMatchUrl());
+  if(appMode==='compare') history.replaceState(null,'',location.pathname);
+}
+function resetProfileResults() {
+  document.getElementById('profile-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.add('hidden');
+  document.body.classList.remove('has-profile-results');
+  profileRaw=null;profileData=null;projectionRaw=null;
+  setWeather('split');
+  if(appMode==='profile') history.replaceState(null,'',location.pathname);
 }
 function updateLaunchBtn() {
   const btn=document.getElementById('launch-btn');
@@ -643,6 +855,9 @@ function updateLaunchBtn() {
   btn.disabled=!ready;
   document.getElementById('swap-btn').disabled=!ready;
   if(!ready) btn.textContent='Comparer →';
+  const profileBtn=document.getElementById('profile-launch-btn');
+  profileBtn.disabled=!selected.profile;
+  if(!selected.profile) profileBtn.textContent='Explorer';
 }
 
 function renderSelectedInput(side) {
@@ -656,11 +871,17 @@ function renderSelectedInput(side) {
 function updateCompactMatch() {
   document.getElementById('compact-name-a').textContent=selected.a?.name||'';
   document.getElementById('compact-name-b').textContent=selected.b?.name||'';
+  document.getElementById('compact-name-profile').textContent=selected.profile?.name||'';
 }
 
 function editCities() {
   document.body.classList.remove('has-results');
   document.getElementById('input-a').focus();
+}
+
+function editProfileCity() {
+  document.body.classList.remove('has-profile-results');
+  document.getElementById('input-profile').focus();
 }
 
 function swapCities() {
@@ -728,6 +949,257 @@ async function fetchClimateData(lat,lon) {
   return j.daily;
 }
 
+// ═══════════════════════════════════════════════════
+// COMMUNE CLIMATE PROFILE
+// ═══════════════════════════════════════════════════
+async function startProfile() {
+  if(!selected.profile) return;
+  const launch=document.getElementById('profile-launch-btn');
+  launch.disabled=true;launch.textContent='Calcul en cours…';
+  document.getElementById('dash-section').classList.add('hidden');
+  document.getElementById('profile-section').classList.add('hidden');
+  document.getElementById('loading-section').classList.remove('hidden');
+  document.getElementById('loading-txt').textContent=`Lecture de trente ans de climat pour ${selected.profile.name}…`;
+  try{
+    profileRaw=await fetchClimateData(selected.profile.lat,selected.profile.lon);
+    profileData=buildProfileData(profileRaw);
+    renderProfile();
+    document.getElementById('loading-section').classList.add('hidden');
+    launch.textContent='Actualiser';
+    syncProfileUrl();
+    loadProjection();
+  }catch(error){
+    console.error('Erreur portrait climat',error);
+    document.getElementById('loading-txt').innerHTML=`Impossible de charger le portrait climatique. <button class="dec-tab on" onclick="startProfile()">Réessayer</button>`;
+    launch.textContent='Réessayer';
+  }finally{launch.disabled=false;}
+}
+
+function buildProfileData(raw) {
+  const annual=[];
+  for(let year=1994;year<=2024;year++) annual.push({year,...calcStats(sliceDaily(raw,`${year}-01-01`,`${year}-12-31`))});
+  const monthly=Array.from({length:12},(_,month)=>{
+    const indices=[],years=new Set();
+    raw.time.forEach((date,i)=>{if(Number(date.slice(5,7))===month+1){indices.push(i);years.add(date.slice(0,4));}});
+    const d=pickDaily(raw,indices),count=Math.max(years.size,1);
+    const mean=(values)=>{const valid=values.filter(v=>v!=null);return valid.length?valid.reduce((a,b)=>a+b,0)/valid.length:0;};
+    return{
+      month,
+      temp:+mean(d.temperature_2m_mean||[]).toFixed(1),
+      rain:Math.round((d.precipitation_sum||[]).reduce((sum,v)=>sum+(v||0),0)/count),
+      sunshine:Math.round((d.sunshine_duration||[]).reduce((sum,v)=>sum+(v||0)/3600,0)/count),
+    };
+  });
+  return{annual,monthly,trend:linearTrend(annual.map(d=>d.temp_mean))*10};
+}
+
+function linearTrend(values) {
+  const n=values.length;
+  if(n<2)return 0;
+  const mx=(n-1)/2,my=values.reduce((a,b)=>a+b,0)/n;
+  let top=0,bottom=0;
+  values.forEach((value,i)=>{top+=(i-mx)*(value-my);bottom+=(i-mx)**2;});
+  return bottom?top/bottom:0;
+}
+
+function averageMetric(rows,key) {
+  return rows.length?rows.reduce((sum,row)=>sum+row[key],0)/rows.length:0;
+}
+
+function renderProfile() {
+  const city=selected.profile;
+  document.getElementById('profile-name').textContent=city.name;
+  document.getElementById('compact-name-profile').textContent=city.name;
+  const monthNames=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const coldest=profileData.monthly.reduce((a,b)=>a.temp<b.temp?a:b),warmest=profileData.monthly.reduce((a,b)=>a.temp>b.temp?a:b);
+  document.getElementById('profile-intro').textContent=`La température moyenne va de ${coldest.temp.toLocaleString('fr')} °C en ${monthNames[coldest.month]} à ${warmest.temp.toLocaleString('fr')} °C en ${monthNames[warmest.month]}. Données ERA5 de 1994 à 2024.`;
+  document.getElementById('profile-section').classList.remove('hidden');
+  document.body.classList.add('has-profile-results');
+  updateCompactMatch();
+  renderProfileSeason();
+  renderMonthlyChart(profileData.monthly);
+  document.getElementById('future-loading').classList.remove('hidden');
+  document.getElementById('future-content').classList.add('hidden');
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(()=>{
+    document.getElementById('profile-section').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    document.getElementById('profile-name').focus({preventScroll:true});
+  },120);
+}
+
+function setProfileSeason(btn,season) {
+  if(!SEASONS[season]||season===profileSeason)return;
+  profileSeason=season;
+  document.querySelectorAll('.profile-season-btn').forEach(item=>{
+    const active=item===btn;item.classList.toggle('on',active);item.setAttribute('aria-pressed',String(active));
+  });
+  renderProfileSeason();
+  if(projectionRaw)renderProjection();
+  syncProfileUrl();
+}
+
+function profilePeriodLabel() {
+  return profileSeason==='year'?'par an':profileSeason==='summer'?'par été':'par hiver';
+}
+
+function statCard(label,value,detail='',className='') {
+  return `<article class="profile-stat ${className}"><div class="profile-stat-label">${label}</div><div><div class="profile-stat-value">${value}</div>${detail?`<div class="profile-stat-detail">${detail}</div>`:''}</div></article>`;
+}
+
+function renderProfileSeason() {
+  if(!profileRaw)return;
+  const stats=statsForSeason(profileRaw,profileSeason),period=profilePeriodLabel();
+  document.querySelectorAll('.profile-season-btn').forEach(btn=>{const active=btn.dataset.season===profileSeason;btn.classList.toggle('on',active);btn.setAttribute('aria-pressed',String(active));});
+  document.getElementById('profile-season-note').textContent=SEASONS[profileSeason].description;
+  document.getElementById('profile-stats').innerHTML=[
+    statCard('Température moyenne',`${formatMetricValue(stats.temp_mean,'°C')} °C`,SEASONS[profileSeason].label),
+    statCard('Pic de chaleur estimé',`${formatMetricValue(stats.record_hot?.value??0,'°C')} °C`,formatRecordDate(stats.record_hot?.date),'profile-stat-hot'),
+    statCard('Pic de froid estimé',`${formatMetricValue(stats.record_cold?.value??0,'°C')} °C`,formatRecordDate(stats.record_cold?.date),'profile-stat-cold'),
+    statCard('Jours de pluie',stats.pluie_j.toLocaleString('fr'),period),
+    statCard('Pluie reçue',`${stats.pluie_mm.toLocaleString('fr')} mm`,period),
+    statCard('Soleil',`${stats.soleil.toLocaleString('fr')} h`,period),
+    statCard('Jours de gel',stats.gel.toLocaleString('fr'),period),
+    statCard('Jours à 30 °C ou plus',stats.chaud.toLocaleString('fr'),period),
+    statCard('Nuits à 20 °C ou plus',stats.tropical_nights.toLocaleString('fr'),period),
+  ].join('');
+  const annual=buildSeasonSeries(profileRaw,profileSeason);
+  renderEvolution({annual,trend:linearTrend(annual.map(d=>d.temp_mean))*10});
+  setWeather(profileSeason==='winter'?'cold':profileSeason==='summer'?'warm':'split');
+}
+
+function buildSeasonSeries(raw,season) {
+  const start=season==='winter'?1995:1994,rows=[];
+  for(let year=start;year<=2024;year++){
+    let daily;
+    if(season==='summer')daily=sliceDaily(raw,`${year}-06-01`,`${year}-08-31`);
+    else if(season==='winter')daily=sliceDaily(raw,`${year-1}-12-01`,`${year}-02-${year%4===0?'29':'28'}`);
+    else daily=sliceDaily(raw,`${year}-01-01`,`${year}-12-31`);
+    rows.push({year,...calcStats(daily,1)});
+  }
+  return rows;
+}
+
+function renderMonthlyChart(monthly) {
+  const names=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+  const W=900,H=330,left=52,right=56,top=24,bottom=50,cw=W-left-right,ch=H-top-bottom;
+  const tMin=Math.floor(Math.min(...monthly.map(d=>d.temp))-3),tMax=Math.ceil(Math.max(...monthly.map(d=>d.temp))+3);
+  const rMax=Math.max(...monthly.map(d=>d.rain),1)*1.15;
+  const x=i=>left+(i+.5)*cw/12,yT=v=>top+(tMax-v)/(tMax-tMin)*ch,yR=v=>top+ch-v/rMax*ch;
+  const points=monthly.map((d,i)=>`${x(i)},${yT(d.temp)}`).join(' ');
+  const grid=[0,.25,.5,.75,1].map(f=>{const y=top+f*ch,val=Math.round(tMax-f*(tMax-tMin));return `<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="rgba(255,255,255,.08)"/><text x="${left-10}" y="${y+4}" text-anchor="end" fill="#A19B94" font-size="11">${val}°</text>`;}).join('');
+  const bars=monthly.map((d,i)=>{const bw=cw/12*.55,y=yR(d.rain);return `<rect x="${x(i)-bw/2}" y="${y}" width="${bw}" height="${top+ch-y}" rx="4" fill="rgba(74,158,232,.38)"><title>${names[i]} : ${d.rain} mm</title></rect>`;}).join('');
+  const labels=names.map((name,i)=>`<text x="${x(i)}" y="${H-18}" text-anchor="middle" fill="#A19B94" font-size="11">${name}</text>`).join('');
+  const dots=monthly.map((d,i)=>`<circle cx="${x(i)}" cy="${yT(d.temp)}" r="4" fill="#F0EDE6"><title>${names[i]} : ${d.temp.toLocaleString('fr')} °C</title></circle>`).join('');
+  document.getElementById('monthly-chart').innerHTML=`<svg class="climate-chart" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="monthly-title monthly-desc"><title id="monthly-title">Température et pluie mois par mois</title><desc id="monthly-desc">La température monte jusqu’en été puis redescend. Les barres indiquent les précipitations mensuelles.</desc>${grid}${bars}<polyline points="${points}" fill="none" stroke="#F0EDE6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${dots}${labels}<text x="${W-right+10}" y="${top+4}" fill="#A19B94" font-size="11">${Math.round(rMax)} mm</text></svg>`;
+}
+
+function colorMix(a,b,t) {
+  const p=hex=>[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
+  const A=p(a),B=p(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`;
+}
+
+function warmingColor(value,min,max) {
+  const t=(value-min)/Math.max(max-min,.1);
+  return t<.5?colorMix('#3979B9','#D8D3C8',t*2):colorMix('#D8D3C8','#D95F3B',(t-.5)*2);
+}
+
+function renderEvolution(data) {
+  const values=data.annual.map(d=>d.temp_mean),min=Math.min(...values),max=Math.max(...values);
+  const stripes=document.getElementById('warming-stripes');
+  stripes.setAttribute('aria-label',`Bandes de température de ${data.annual[0].year} à ${data.annual.at(-1).year}, de ${min.toLocaleString('fr')} à ${max.toLocaleString('fr')} degrés Celsius.`);
+  stripes.innerHTML=data.annual.map(d=>`<span class="stripe" style="background:${warmingColor(d.temp_mean,min,max)}" title="${d.year} : ${d.temp_mean.toLocaleString('fr')} °C"></span>`).join('');
+  const trend=+data.trend.toFixed(1),signed=`${trend>0?'+':''}${trend.toLocaleString('fr',{minimumFractionDigits:1,maximumFractionDigits:1})} °C`;
+  document.getElementById('profile-trend').textContent=signed;
+  document.getElementById('profile-trend-copy').textContent=`par décennie sur la période observée. C’est une tendance locale, sensible aux variations d’une année à l’autre.`;
+  document.getElementById('stripe-year-start').textContent=data.annual[0].year;
+  document.getElementById('stripe-year-end').textContent=data.annual.at(-1).year;
+  document.getElementById('annual-chart-title').textContent=profileSeason==='summer'?'Température moyenne de chaque été':profileSeason==='winter'?'Température moyenne de chaque hiver':'Température moyenne de chaque année';
+  renderAnnualChart(data.annual,data.trend/10);
+  const first=data.annual.filter(d=>d.year>=1995&&d.year<=2004),last=data.annual.filter(d=>d.year>=2015&&d.year<=2024);
+  const changes=[
+    {label:'Température moyenne',value:averageMetric(last,'temp_mean')-averageMetric(first,'temp_mean'),unit:'°C',good:false},
+    {label:'Jours de gel',value:averageMetric(last,'gel')-averageMetric(first,'gel'),unit:'jours/an'},
+    {label:'Jours très chauds',value:averageMetric(last,'chaud')-averageMetric(first,'chaud'),unit:'jours/an'},
+  ];
+  const periodUnit=profileSeason==='year'?'jours/an':profileSeason==='summer'?'jours/été':'jours/hiver';
+  document.getElementById('change-cards').innerHTML=changes.map(item=>{const unit=item.unit==='°C'?'°C':periodUnit;const value=item.unit==='°C'?item.value.toLocaleString('fr',{minimumFractionDigits:1,maximumFractionDigits:1}):Math.round(item.value).toLocaleString('fr');return `<article class="change-card"><span>${item.label}</span><strong>${item.value>0?'+':''}${value} ${unit}</strong><span>2015-2024 comparé à 1995-2004</span></article>`;}).join('');
+}
+
+function renderAnnualChart(annual,slope) {
+  const W=900,H=280,left=52,right=24,top=24,bottom=42,cw=W-left-right,ch=H-top-bottom;
+  const vals=annual.map(d=>d.temp_mean),min=Math.floor(Math.min(...vals)-1),max=Math.ceil(Math.max(...vals)+1);
+  const x=i=>left+i*cw/(annual.length-1),y=v=>top+(max-v)/(max-min)*ch;
+  const points=annual.map((d,i)=>`${x(i)},${y(d.temp_mean)}`).join(' '),mean=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const start=mean-slope*(annual.length-1)/2,end=mean+slope*(annual.length-1)/2;
+  const grid=[0,.5,1].map(f=>{const yy=top+f*ch,val=(max-f*(max-min)).toFixed(0);return `<line x1="${left}" y1="${yy}" x2="${W-right}" y2="${yy}" stroke="rgba(255,255,255,.08)"/><text x="${left-10}" y="${yy+4}" text-anchor="end" fill="#A19B94" font-size="11">${val}°</text>`;}).join('');
+  const yearIndices=[0,Math.round((annual.length-1)/3),Math.round((annual.length-1)*2/3),annual.length-1];
+  const years=[...new Set(yearIndices)].map(i=>`<text x="${x(i)}" y="${H-14}" text-anchor="middle" fill="#A19B94" font-size="11">${annual[i].year}</text>`).join('');
+  document.getElementById('annual-chart').innerHTML=`<svg class="annual-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Courbe de température annuelle de 1994 à 2024 avec tendance">${grid}<polyline points="${points}" fill="none" stroke="#A19B94" stroke-width="2" stroke-linejoin="round"/><line x1="${x(0)}" y1="${y(start)}" x2="${x(annual.length-1)}" y2="${y(end)}" stroke="#F09273" stroke-width="4" stroke-linecap="round"/>${annual.map((d,i)=>`<circle cx="${x(i)}" cy="${y(d.temp_mean)}" r="3" fill="#F0EDE6"><title>${d.year} : ${d.temp_mean.toLocaleString('fr')} °C</title></circle>`).join('')}${years}</svg>`;
+}
+
+async function fetchClimateProjection(lat,lon) {
+  const params=new URLSearchParams({latitude:lat,longitude:lon,start_date:'1994-01-01',end_date:'2050-12-31',models:CLIMATE_MODELS.join(','),daily:'temperature_2m_mean,temperature_2m_max,temperature_2m_min'});
+  const response=await fetch(`https://climate-api.open-meteo.com/v1/climate?${params}`);
+  if(!response.ok)throw new Error(`Open-Meteo Climate HTTP ${response.status}`);
+  const json=await response.json();if(!json.daily?.time?.length)throw new Error('Projections absentes');return json.daily;
+}
+
+async function loadProjection() {
+  try{projectionRaw=await fetchClimateProjection(selected.profile.lat,selected.profile.lon);renderProjection();}
+  catch(error){console.error('Erreur projections CMIP6',error);document.getElementById('future-loading').innerHTML='Les projections ne sont pas disponibles pour le moment. Les observations restent consultables.';}
+}
+
+function modelDaily(raw,model) {
+  return{time:raw.time,temperature_2m_mean:raw[`temperature_2m_mean_${model}`]||[],temperature_2m_max:raw[`temperature_2m_max_${model}`]||[],temperature_2m_min:raw[`temperature_2m_min_${model}`]||[]};
+}
+
+function projectionStats(raw,season) {
+  return CLIMATE_MODELS.map(model=>{
+    const daily=modelDaily(raw,model);
+    const baseline=statsForSeason(sliceDaily(daily,season==='winter'?'1994-12-01':'1995-01-01','2014-12-31'),season);
+    const future=statsForSeason(sliceDaily(daily,season==='winter'?'2030-12-01':'2031-01-01','2050-12-31'),season);
+    return{model,baseline,future};
+  });
+}
+
+function median(values) {
+  const sorted=[...values].sort((a,b)=>a-b),mid=Math.floor(sorted.length/2);
+  return sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2;
+}
+
+function ensembleDelta(rows,key) {
+  const deltas=rows.map(row=>row.future[key]-row.baseline[key]);
+  return{median:median(deltas),min:Math.min(...deltas),max:Math.max(...deltas)};
+}
+
+function renderProjection() {
+  if(!projectionRaw)return;
+  const rows=projectionStats(projectionRaw,profileSeason),temp=ensembleDelta(rows,'temp_mean');
+  const hot=ensembleDelta(rows,'chaud'),tropical=ensembleDelta(rows,'tropical_nights'),gel=ensembleDelta(rows,'gel');
+  const one=v=>v.toLocaleString('fr',{minimumFractionDigits:1,maximumFractionDigits:1}),days=v=>`${v>0?'+':''}${Math.round(v).toLocaleString('fr')}`;
+  document.getElementById('future-content').innerHTML=`
+    <div class="future-hero">
+      <div><div class="profile-kicker">Médiane des sept modèles</div><div class="future-delta">${temp.median>0?'+':''}${one(temp.median)} °C</div><div class="future-range">Selon les modèles : ${temp.min>0?'+':''}${one(temp.min)} à ${temp.max>0?'+':''}${one(temp.max)} °C entre 1995-2014 et 2031-2050.</div></div>
+      <div id="ensemble-chart"></div>
+    </div>
+    <div class="future-metrics">
+      <article class="future-metric"><div class="future-metric-label">Jours à 30 °C ou plus</div><strong>${days(hot.median)}</strong><small>${profilePeriodLabel()}, médiane des modèles</small></article>
+      <article class="future-metric"><div class="future-metric-label">Nuits à 20 °C ou plus</div><strong>${days(tropical.median)}</strong><small>${profilePeriodLabel()}, médiane des modèles</small></article>
+      <article class="future-metric"><div class="future-metric-label">Jours de gel</div><strong>${days(gel.median)}</strong><small>${profilePeriodLabel()}, médiane des modèles</small></article>
+    </div>`;
+  document.getElementById('future-loading').classList.add('hidden');
+  document.getElementById('future-content').classList.remove('hidden');
+  renderEnsembleChart(rows);
+}
+
+function renderEnsembleChart(rows) {
+  const W=600,H=270,left=88,right=88,top=24,bottom=42;
+  const all=rows.flatMap(r=>[r.baseline.temp_mean,r.future.temp_mean]),min=Math.floor(Math.min(...all)-1),max=Math.ceil(Math.max(...all)+1),y=v=>top+(max-v)/(max-min)*(H-top-bottom);
+  const x1=left,x2=W-right,lines=rows.map((row,i)=>`<line x1="${x1}" y1="${y(row.baseline.temp_mean)}" x2="${x2}" y2="${y(row.future.temp_mean)}" stroke="${i%2?'rgba(74,158,232,.55)':'rgba(232,106,69,.55)'}" stroke-width="2"><title>${row.model.replaceAll('_',' ')} : ${row.baseline.temp_mean.toLocaleString('fr')} à ${row.future.temp_mean.toLocaleString('fr')} °C</title></line>`).join('');
+  const b=median(rows.map(r=>r.baseline.temp_mean)),f=median(rows.map(r=>r.future.temp_mean));
+  document.getElementById('ensemble-chart').innerHTML=`<svg class="ensemble-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution de la température moyenne dans sept modèles climatiques"><line x1="${x1}" y1="${top}" x2="${x1}" y2="${H-bottom}" stroke="rgba(255,255,255,.16)"/><line x1="${x2}" y1="${top}" x2="${x2}" y2="${H-bottom}" stroke="rgba(255,255,255,.16)"/>${lines}<line x1="${x1}" y1="${y(b)}" x2="${x2}" y2="${y(f)}" stroke="#F0EDE6" stroke-width="5" stroke-linecap="round"/><circle cx="${x1}" cy="${y(b)}" r="7" fill="#F0EDE6"/><circle cx="${x2}" cy="${y(f)}" r="7" fill="#F0EDE6"/><text x="${x1}" y="${H-14}" text-anchor="middle" fill="#A19B94" font-size="12">1995-2014</text><text x="${x2}" y="${H-14}" text-anchor="middle" fill="#A19B94" font-size="12">2031-2050</text></svg>`;
+}
+
 function sliceDaily(d,start,end) {
   const indices=d.time.reduce((acc,date,i)=>{if(date>=start&&date<=end)acc.push(i);return acc;},[]);
   return pickDaily(d,indices);
@@ -780,12 +1252,12 @@ function calcStats(d,periodCount) {
   const ta=d.temperature_2m_mean||[],tm=d.temperature_2m_max||[],tn=d.temperature_2m_min||[],pr=d.precipitation_sum||[],su=d.sunshine_duration||[];
   const years=new Set((d.time||[]).map(date=>date.slice(0,4)));
   const Y=Math.max(periodCount||years.size,1);
-  let gel=0,gn=0,pj=0,pm=0,sol=0,hot=0,as=0,ac=0,tempSum=0,tempCount=0;
+  let gel=0,gn=0,tropical=0,pj=0,pm=0,sol=0,hot=0,as=0,ac=0,tempSum=0,tempCount=0;
   let recordHot={value:-Infinity,date:null},recordCold={value:Infinity,date:null};
   for(let i=0;i<tn.length;i++){
     const mean=ta[i]!=null?ta[i]:(tm[i]!=null&&tn[i]!=null?(tm[i]+tn[i])/2:null);
     if(mean!=null){tempSum+=mean;tempCount++;}
-    if(tn[i]!=null){if(tn[i]<0)gel++;if(tn[i]<-5)gn++;if(tn[i]<recordCold.value)recordCold={value:tn[i],date:d.time[i]};}
+    if(tn[i]!=null){if(tn[i]<0)gel++;if(tn[i]<-5)gn++;if(tn[i]>=20)tropical++;if(tn[i]<recordCold.value)recordCold={value:tn[i],date:d.time[i]};}
     if(pr[i]!=null){if(pr[i]>=1)pj++;pm+=pr[i];}
     if(su[i]!=null)sol+=su[i]/3600;
     if(tm[i]!=null){if(tm[i]>=30)hot++;if(tm[i]>recordHot.value)recordHot={value:tm[i],date:d.time[i]};}
@@ -795,7 +1267,7 @@ function calcStats(d,periodCount) {
     temp_mean:tempCount?+(tempSum/tempCount).toFixed(1):0,
     record_hot:Number.isFinite(recordHot.value)?recordHot:null,
     record_cold:Number.isFinite(recordCold.value)?recordCold:null,
-    gel:Math.round(gel/Y),gel_n:Math.round(gn/Y),pluie_j:Math.round(pj/Y),pluie_mm:Math.round(pm/Y),soleil:Math.round(sol/Y),chaud:Math.round(hot/Y),amp:ac?+(as/ac).toFixed(1):0
+    gel:Math.round(gel/Y),gel_n:Math.round(gn/Y),tropical_nights:Math.round(tropical/Y),pluie_j:Math.round(pj/Y),pluie_mm:Math.round(pm/Y),soleil:Math.round(sol/Y),chaud:Math.round(hot/Y),amp:ac?+(as/ac).toFixed(1):0
   };
 }
 
@@ -926,7 +1398,7 @@ function renderDash(dA,dB,shouldScroll=true,resetDecade=true) {
   document.body.classList.add('has-results');
   updateCompactMatch();
   document.getElementById('period-description').textContent=`${SEASONS[currentSeason].description} La colonne la plus haute montre la ville qui en a le plus.`;
-  document.querySelectorAll('.season-btn').forEach(btn=>{
+  document.querySelectorAll('.results-tools .season-btn').forEach(btn=>{
     const active=btn.dataset.season===currentSeason;
     btn.classList.toggle('on',active);
     btn.setAttribute('aria-pressed',String(active));
@@ -969,7 +1441,7 @@ function renderDash(dA,dB,shouldScroll=true,resetDecade=true) {
 function setSeason(btn,season) {
   if(!SEASONS[season]||season===currentSeason) return;
   currentSeason=season;
-  document.querySelectorAll('.season-btn').forEach(item=>{
+  document.querySelectorAll('.results-tools .season-btn').forEach(item=>{
     const active=item===btn;
     item.classList.toggle('on',active);
     item.setAttribute('aria-pressed',String(active));
@@ -984,8 +1456,9 @@ function setSeason(btn,season) {
 
 function buildMatchUrl() {
   const url=new URL(window.location.href);
-  ['a','b','alat','alon','blat','blon','ad','bd','s'].forEach(key=>url.searchParams.delete(key));
+  ['mode','a','b','alat','alon','blat','blon','ad','bd','s','p','plat','plon','pd','ps'].forEach(key=>url.searchParams.delete(key));
   if(!selected.a||!selected.b) return url;
+  url.searchParams.set('mode','compare');
   url.searchParams.set('a',selected.a.name);
   url.searchParams.set('alat',Number(selected.a.lat).toFixed(5));
   url.searchParams.set('alon',Number(selected.a.lon).toFixed(5));
@@ -998,10 +1471,27 @@ function buildMatchUrl() {
   return url;
 }
 
+function buildProfileUrl() {
+  const url=new URL(window.location.href);
+  ['mode','a','b','alat','alon','blat','blon','ad','bd','s','p','plat','plon','pd','ps'].forEach(key=>url.searchParams.delete(key));
+  if(!selected.profile)return url;
+  url.searchParams.set('mode','profile');
+  url.searchParams.set('p',selected.profile.name);
+  url.searchParams.set('plat',Number(selected.profile.lat).toFixed(5));
+  url.searchParams.set('plon',Number(selected.profile.lon).toFixed(5));
+  url.searchParams.set('pd',selected.profile.dept||'');
+  url.searchParams.set('ps',SEASONS[profileSeason].slug);
+  return url;
+}
+
 function syncMatchUrl() {
   const url=buildMatchUrl();
   history.replaceState(null,'',url);
   return url.href;
+}
+
+function syncProfileUrl() {
+  const url=buildProfileUrl();history.replaceState(null,'',url);return url.href;
 }
 
 function copyText(text) {
@@ -1028,6 +1518,16 @@ async function shareMatch() {
   } catch(error) {
     if(error.name!=='AbortError') status.textContent='Le partage n’a pas fonctionné. Réessaie.';
   }
+}
+
+async function shareProfile() {
+  if(!profileData)return;
+  const url=syncProfileUrl(),stats=statsForSeason(profileRaw,profileSeason);
+  const data={title:`Portrait climat de ${selected.profile.name}`,text:`À ${selected.profile.name}, la température moyenne est de ${formatMetricValue(stats.temp_mean,'°C')} °C sur la période ${SEASONS[profileSeason].label.toLowerCase()}.`,url};
+  try{
+    if(navigator.share)await navigator.share(data);else await copyText(url);
+    document.getElementById('results-announcer').textContent=navigator.share?'Portrait partagé.':'Lien du portrait copié.';
+  }catch(error){if(error.name!=='AbortError')document.getElementById('results-announcer').textContent='Le partage n’a pas fonctionné.';}
 }
 
 function slugify(text) {
@@ -1099,10 +1599,20 @@ function restoreMatchFromUrl() {
     if(!safeName||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180) return null;
     return {name,lat,lon,dept:params.get(`${side}d`)||''};
   };
+  if(params.get('mode')==='profile'){
+    const name=params.get('p'),lat=Number(params.get('plat')),lon=Number(params.get('plon'));
+    const safeName=!!name&&name.length<=80&&/^[\p{L}\p{N} .,'’()\-]+$/u.test(name);
+    if(safeName&&Number.isFinite(lat)&&Number.isFinite(lon)&&Math.abs(lat)<=90&&Math.abs(lon)<=180){
+      selected.profile={name,lat,lon,dept:params.get('pd')||''};
+      profileSeason=Object.keys(SEASONS).find(key=>SEASONS[key].slug===params.get('ps'))||'year';
+      setAppMode('profile',true);renderSelectedInput('profile');updateCompactMatch();updateLaunchBtn();startProfile();return;
+    }
+  }
   const a=city('a'),b=city('b');
   if(!a||!b) return;
   selected.a=a; selected.b=b;
   currentSeason=Object.keys(SEASONS).find(key=>SEASONS[key].slug===params.get('s'))||'year';
+  setAppMode('compare',true);
   renderSelectedInput('a');renderSelectedInput('b');updateCompactMatch();updateLaunchBtn();
   startMatch();
 }
