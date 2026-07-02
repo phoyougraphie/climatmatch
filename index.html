@@ -6,7 +6,7 @@
 <title>ClimatMatch - Données vs Croyances</title>
 <meta name="description" content="Compare le climat de deux villes ou explore le portrait climatique d’une commune, de 1994 aux projections 2050.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1119,7 +1119,91 @@ async function doReveal() {
   }
 }
 
+// ═══════════════════════════════════════════════════
+// LOCAL CACHE ERA5 (localStorage)
+// ERA5 1994-2024 est immuable : une commune déjà chargée ne doit plus
+// jamais coûter d'appels API (~404 appels pondérés par ville sinon).
+// Clé = coordonnées exactes de la commune (arrondies à 4 décimales, ~11 m,
+// uniquement pour stabiliser la sérialisation). Pas de mutualisation entre
+// communes voisines : Open-Meteo interpole entre cellules ERA5 et applique
+// une correction d'altitude, deux communes proches reçoivent des valeurs
+// différentes. LRU, ~270 Ko/entrée.
+// ═══════════════════════════════════════════════════
+const ERA5_CACHE_PREFIX='cmr2:';
+const ERA5_CACHE_INDEX='cmr2:idx';
+const ERA5_CACHE_MAX=12;
+const ERA5_VARIABLES=['temperature_2m_mean','temperature_2m_max','temperature_2m_min','precipitation_sum','sunshine_duration'];
+
+function era5CacheKey(lat,lon){
+  return `${ERA5_CACHE_PREFIX}${(+lat).toFixed(4)},${(+lon).toFixed(4)}`;
+}
+
+function era5DatesBetween(start,end){
+  const out=[],d=new Date(`${start}T00:00:00Z`),stop=new Date(`${end}T00:00:00Z`);
+  while(d<=stop){out.push(d.toISOString().slice(0,10));d.setUTCDate(d.getUTCDate()+1);}
+  return out;
+}
+
+function era5TouchIndex(key,remove=false){
+  try{
+    const idx=JSON.parse(localStorage.getItem(ERA5_CACHE_INDEX)||'{}');
+    if(remove)delete idx[key];else idx[key]=Date.now();
+    localStorage.setItem(ERA5_CACHE_INDEX,JSON.stringify(idx));
+  }catch{/* stockage indisponible : on vit sans cache */}
+}
+
+function era5EvictOldest(){
+  try{
+    const idx=JSON.parse(localStorage.getItem(ERA5_CACHE_INDEX)||'{}');
+    const victim=Object.keys(idx).sort((a,b)=>idx[a]-idx[b])[0];
+    if(!victim)return false;
+    localStorage.removeItem(victim);
+    era5TouchIndex(victim,true);
+    return true;
+  }catch{return false;}
+}
+
+function era5ReadCache(lat,lon){
+  try{
+    const key=era5CacheKey(lat,lon);
+    const raw=localStorage.getItem(key);
+    if(!raw)return null;
+    const payload=JSON.parse(raw);
+    if(payload?.v!==1||!payload.d||!payload.start||!payload.end)return null;
+    const time=era5DatesBetween(payload.start,payload.end);
+    for(const name of ERA5_VARIABLES){
+      const arr=payload.d[name];
+      if(!Array.isArray(arr)||arr.length!==time.length){localStorage.removeItem(key);era5TouchIndex(key,true);return null;}
+    }
+    era5TouchIndex(key);
+    return{time,...payload.d};
+  }catch{return null;}
+}
+
+function era5WriteCache(lat,lon,daily){
+  try{
+    const key=era5CacheKey(lat,lon);
+    const d={};
+    for(const[name,arr]of Object.entries(daily)){
+      if(name==='time')continue;
+      const decimals=name==='sunshine_duration'?0:1;
+      d[name]=arr.map(v=>v==null?null:+v.toFixed(decimals));
+    }
+    const payload=JSON.stringify({v:1,start:daily.time[0],end:daily.time.at(-1),d});
+    try{
+      let count=Object.keys(JSON.parse(localStorage.getItem(ERA5_CACHE_INDEX)||'{}')).length;
+      while(count>=ERA5_CACHE_MAX&&era5EvictOldest())count--;
+    }catch{}
+    for(let attempt=0;attempt<=ERA5_CACHE_MAX;attempt++){
+      try{localStorage.setItem(key,payload);era5TouchIndex(key);return;}
+      catch{if(!era5EvictOldest())return;/* quota plein et rien à évincer */}
+    }
+  }catch{/* jamais bloquant */}
+}
+
 async function fetchClimateData(lat,lon) {
+  const cached=era5ReadCache(lat,lon);
+  if(cached)return cached;
   const params=new URLSearchParams({
     latitude:lat,longitude:lon,start_date:'1994-01-01',end_date:'2024-12-31',
     daily:'temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration',
@@ -1131,6 +1215,7 @@ async function fetchClimateData(lat,lon) {
     error.status=404;
     throw error;
   }
+  era5WriteCache(lat,lon,j.daily);
   return j.daily;
 }
 
